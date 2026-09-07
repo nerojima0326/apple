@@ -235,6 +235,14 @@
     .upgrade-stat-highlight { color: #e53935; font-weight: 900; }
     body.dark-mode .upgrade-stat-highlight { color: #ff5252; }
 
+    /* [신규: 괄호 빨간색 합산 누적치 전용 스타일] */
+    .upgrade-stacked-tag {
+      color: #ff1744 !important;
+      font-weight: 900 !important;
+      margin-left: 5px;
+      display: inline-block;
+    }
+
     .inventory-card {
       background: var(--card); border: 2px solid var(--border); border-radius: 10px;
       padding: 10px 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 3px 0 var(--border);
@@ -319,7 +327,7 @@
       transition: width 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
     }
 
-    /* [신규: 전용 피버 게이지 바 UI] */
+    /* 전용 피버 게이지 바 */
     .fever-gauge-container {
       width: 100%; margin-bottom: 10px; display: flex; flex-direction: column; gap: 2px;
     }
@@ -504,7 +512,6 @@
       border: 3px dotted #ff1744 !important; outline: 2px solid var(--pixel-yellow) !important;
       background: rgba(255, 214, 0, 0.16) !important; box-shadow: 0 0 14px rgba(255, 23, 68, 0.5) !important;
     }
-    /* 피버 모드 드래그 스타일 */
     .selection-box.fever-drag {
       border: 3px solid #ff1744 !important; outline: 3px dashed #ffd600 !important;
       background: rgba(255, 23, 68, 0.28) !important; box-shadow: 0 0 20px rgba(255, 23, 68, 0.8) !important;
@@ -847,7 +854,7 @@
       </div>
     </div>
 
-    <!-- [신규: 전용 FEVER 게이지 바 UI (10콤보 도달 시 100%)] -->
+    <!-- 전용 FEVER 게이지 바 -->
     <div class="fever-gauge-container">
       <div class="fever-gauge-label">
         <span class="fever-title-text" id="fever-title-text">🔥 FEVER GAUGE</span>
@@ -1041,6 +1048,31 @@
       setTimeout(() => slashEl.remove(), 320);
     }
 
+    // [신규: 레벨업된 특성의 합산 값을 계산하여 괄호 텍스트로 반환]
+    function getStackedStatText(id, level) {
+      if (level <= 1) return '';
+      switch (id) {
+        case 'fast_hint':
+          return `(총 -${(level * 1.5).toFixed(1)}초)`;
+        case 'max_hp':
+          return `(총 최대 HP +${level * 30})`;
+        case 'combo_time':
+          return `(총 +${(level * 2.0).toFixed(1)}초)`;
+        case 'bonus_score':
+          return `(총 개당 +${level * 2}점)`;
+        case 'slow_drain':
+          return `(총 ${Math.round((Math.pow(1.3, level) - 1) * 100)}% 둔화)`;
+        case 'fever_strike':
+          return `(총 콤보당 +${2 + level * 2}점)`;
+        case 'emergency_heal':
+          return `(총 +${35 * level} HP 회복)`;
+        case 'apple_harvest':
+          return `(총 스테이지당 +${level * 25}점)`;
+        default:
+          return `(Lv.${level} 합산 적용)`;
+      }
+    }
+
     const UPGRADE_POOL = [
       {
         id: 'fast_hint', icon: '💡', tag: '보조', tagClass: 'tag-utility',
@@ -1118,12 +1150,15 @@
         $('screen-over').classList.add('hide');
         $('screen-title').classList.remove('hide');
       },
+
+      // [보유 특성 모달: 레벨업 특성 합산값 빨간색 괄호 표시]
       openInventory() {
         if (game.active && !game.isFever) clearInterval(game.hpTimer);
         playTone([[520, 0], [680, 0.06]], 'triangle', 0.12, 0.15);
         const listEl = $('inventory-card-list');
         listEl.innerHTML = '';
         const acquiredKeys = Object.keys(game.acquiredUpgrades);
+        
         if (acquiredKeys.length === 0) {
           listEl.innerHTML = `
             <div style="padding: 24px 10px; text-align: center; color: #888; font-weight: 800; font-size: 0.9rem; line-height: 1.6;">
@@ -1133,6 +1168,9 @@
         } else {
           acquiredKeys.forEach(id => {
             const data = game.acquiredUpgrades[id];
+            const stackedText = getStackedStatText(data.id, data.level);
+            const stackedTagHtml = stackedText ? `<span class="upgrade-stacked-tag">${stackedText}</span>` : '';
+
             const card = document.createElement('div');
             card.className = 'inventory-card';
             card.innerHTML = `
@@ -1145,7 +1183,7 @@
                     <span class="upgrade-tag ${data.tagClass}">${data.tag}</span>
                   </div>
                 </div>
-                <div class="upgrade-desc">${data.desc}</div>
+                <div class="upgrade-desc">${data.desc} ${stackedTagHtml}</div>
               </div>
             `;
             listEl.appendChild(card);
@@ -1200,7 +1238,6 @@
       comboTimeRemaining: 0,
       comboTimer: null,
 
-      // 피버 게이지 시스템 (10 콤보 달성 시 100%)
       feverGauge: 0,
       maxFeverCombo: 10,
       isFever: false,
@@ -1330,7 +1367,6 @@
         $('target-stage-label').textContent = `STAGE ${this.stage} 목표 달성도`;
       },
 
-      // 피버 게이지 바 UI 갱신
       updateFeverUI() {
         const fillEl = $('fever-gauge-fill');
         const pctText = $('fever-pct-text');
@@ -1492,7 +1528,6 @@
         }, delay);
       },
 
-      // 10 콤보 도달 시 블레이드 피버 타임 진입 (5초 지속)
       startFeverMode() {
         if (this.isFever) return;
         this.isFever = true;
@@ -1581,7 +1616,6 @@
       addCombo() {
         this.combo++;
         
-        // 10 콤보 도달 시 피버 게이지 100% -> 피버 모드 즉시 발동
         if (!this.isFever) {
           this.feverGauge = Math.min(100, (this.combo / this.maxFeverCombo) * 100);
           this.updateFeverUI();
@@ -1711,7 +1745,6 @@
         height: parseFloat(box.style.height) || 0
       };
 
-      // 피버 모드일 때는 합과 상관없이 1개 이상의 드래그 영역이면 무조건 참격 폭발!
       const canClear = sel && ((game.isFever && sel.count > 0) || sel.valid);
 
       if (canClear) {
@@ -1741,7 +1774,6 @@
         if (!game.isFever) {
           game.addCombo();
         } else {
-          // 피버 중에도 콤보 카운트 증가
           game.combo += 1;
           $('combo-count').textContent = game.combo;
         }
@@ -1762,7 +1794,6 @@
       game.currentSelection = null;
     });
 
-    // 드래그 영역 계산 (피버 모드 드래그 지원)
     function updateDrag(e) {
       if (!game.dragStart) return;
       const el = getAppleFromPoint(e.clientX, e.clientY);
@@ -1786,7 +1817,6 @@
       let isDiagMatch = false;
       let selectedCells = unclearedRect;
 
-      // [피버 모드]: 합 10 계산 없이 드래그한 모든 사과가 유효한 참격 대상으로 변환
       if (game.isFever) {
         valid = true;
         isDiagMatch = isPureDiag;
