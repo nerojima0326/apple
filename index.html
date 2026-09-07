@@ -235,7 +235,6 @@
     .upgrade-stat-highlight { color: #e53935; font-weight: 900; }
     body.dark-mode .upgrade-stat-highlight { color: #ff5252; }
 
-    /* [신규: 괄호 빨간색 합산 누적치 전용 스타일] */
     .upgrade-stacked-tag {
       color: #ff1744 !important;
       font-weight: 900 !important;
@@ -1048,7 +1047,6 @@
       setTimeout(() => slashEl.remove(), 320);
     }
 
-    // [신규: 레벨업된 특성의 합산 값을 계산하여 괄호 텍스트로 반환]
     function getStackedStatText(id, level) {
       if (level <= 1) return '';
       switch (id) {
@@ -1151,7 +1149,6 @@
         $('screen-title').classList.remove('hide');
       },
 
-      // [보유 특성 모달: 레벨업 특성 합산값 빨간색 괄호 표시]
       openInventory() {
         if (game.active && !game.isFever) clearInterval(game.hpTimer);
         playTone([[520, 0], [680, 0.06]], 'triangle', 0.12, 0.15);
@@ -1512,7 +1509,8 @@
         );
       },
 
-      scheduleAppleRespawn(cell, delay = 800) {
+      // 사과 등장 간격을 3배로 연장 (기본 2400ms)
+      scheduleAppleRespawn(cell, delay = 2400) {
         setTimeout(() => {
           if (!this.active || !cell.cleared) return;
           cell.val = Math.floor(Math.random() * 9) + 1;
@@ -1759,7 +1757,8 @@
             c.el.classList.remove('exploding');
           }, 270);
 
-          game.scheduleAppleRespawn(c, game.isFever ? 600 : 800);
+          // 제거 후 3배 늘어난 2400ms(피버 중 1800ms) 뒤 다시 퐁퐁 자라남
+          game.scheduleAppleRespawn(c, game.isFever ? 1800 : 2400);
         });
 
         const comboBonus = game.combo * game.comboMultiplier;
