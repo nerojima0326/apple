@@ -15,7 +15,7 @@
       --bg: #141416; --card: #1f1f24; --text: #f1f3f5; --border: #4b4b57;
       --sub-bg: #18181c; --board-border: #2e2e36; --shadow: rgba(0,0,0,0.5);
     }
-    * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+    * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: none; }
     body {
       margin: 0; padding: 12px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg); color: var(--text); display: flex; flex-direction: column;
@@ -188,55 +188,57 @@
     .btn-sub:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
     .btn-guide-close { background: #374151 !important; color: #ffffff !important; }
     .btn-header {
-      background: var(--apple-red); color: #fff; border: none; padding: 7px 12px; font-size: .85rem;
-      font-weight: 700; border-radius: 6px;
+      background: var(--apple-red); color: #fff; border: none; padding: 7px 11px; font-size: .82rem;
+      font-weight: 800; border-radius: 6px; box-shadow: 0 2px 0 var(--border);
+      transition: transform .1s;
     }
+    .btn-header:active { transform: translateY(1px); box-shadow: none; }
 
-    /* 업그레이드 모달 */
+    /* 업그레이드 선택 및 보유 현황 모달 카드 스타일 */
     .upgrade-modal {
-      max-width: 460px; width: 92%; padding: 22px 18px;
+      max-width: 470px; width: 92%; padding: 20px 16px;
       background: linear-gradient(180deg, var(--card) 0%, var(--sub-bg) 100%);
     }
-    .upgrade-card-list { display: flex; flex-direction: column; gap: 11px; margin: 14px 0 6px 0; }
+    .upgrade-card-list { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 6px 0; }
     
     .upgrade-card {
       background: var(--card); border: 2.5px solid var(--border); border-radius: 12px;
-      padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 11px 13px; display: flex; align-items: center; gap: 11px; cursor: pointer;
       box-shadow: 0 4px 0 var(--border);
       transition: transform .14s, box-shadow .14s, background-color .15s, border-color .15s;
-      animation: cardFlyIn 0.42s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+      animation: cardFlyIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
       position: relative; overflow: hidden;
     }
     .upgrade-card:hover {
-      transform: translateY(-3px) scale(1.01);
-      box-shadow: 0 8px 0 var(--border), 0 0 14px rgba(255, 214, 0, 0.35);
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 7px 0 var(--border), 0 0 14px rgba(255, 214, 0, 0.35);
       border-color: #ff9800;
     }
     .upgrade-card:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--border); }
-    .upgrade-card.selected { animation: cardSelectPulse 0.32s ease-out forwards; }
+    .upgrade-card.selected { animation: cardSelectPulse 0.3s ease-out forwards; }
 
-    .upgrade-card:nth-child(1) { animation-delay: 0.06s; }
-    .upgrade-card:nth-child(2) { animation-delay: 0.16s; }
-    .upgrade-card:nth-child(3) { animation-delay: 0.26s; }
+    .upgrade-card:nth-child(1) { animation-delay: 0.05s; }
+    .upgrade-card:nth-child(2) { animation-delay: 0.14s; }
+    .upgrade-card:nth-child(3) { animation-delay: 0.23s; }
 
     @keyframes cardFlyIn {
-      0% { transform: translateY(35px) scale(0.85); opacity: 0; }
+      0% { transform: translateY(30px) scale(0.88); opacity: 0; }
       100% { transform: translateY(0) scale(1); opacity: 1; }
     }
     @keyframes cardSelectPulse {
       0% { transform: scale(1); background: var(--pixel-yellow); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(0.95); opacity: 0; }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(0.96); opacity: 0; }
     }
 
     .upgrade-icon-box {
-      font-size: 2rem; min-width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;
-      background: var(--sub-bg); border: 2px solid var(--border); border-radius: 10px;
+      font-size: 1.8rem; min-width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+      background: var(--sub-bg); border: 2px solid var(--border); border-radius: 9px;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
     }
-    .upgrade-content { display: flex; flex-direction: column; gap: 3px; text-align: left; flex: 1; }
+    .upgrade-content { display: flex; flex-direction: column; gap: 2px; text-align: left; flex: 1; }
     .upgrade-header-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-    .upgrade-name { font-size: 0.98rem; font-weight: 900; color: var(--text); letter-spacing: 0.5px; }
+    .upgrade-name { font-size: 0.94rem; font-weight: 900; color: var(--text); letter-spacing: 0.5px; }
     .upgrade-tag {
       font-size: 0.68rem; font-weight: 900; padding: 2px 6px; border-radius: 4px;
       border: 1.5px solid var(--border); color: #fff; text-shadow: 1px 1px 0 var(--border);
@@ -246,10 +248,22 @@
     .tag-score { background: #d32f2f; }
     .tag-utility { background: #0288d1; }
 
-    .upgrade-desc { font-size: 0.82rem; font-weight: 700; color: #444; line-height: 1.35; }
+    .upgrade-desc { font-size: 0.8rem; font-weight: 700; color: #444; line-height: 1.35; }
     body.dark-mode .upgrade-desc { color: #ccc; }
     .upgrade-stat-highlight { color: #e53935; font-weight: 900; }
     body.dark-mode .upgrade-stat-highlight { color: #ff5252; }
+
+    /* 보유 특성 전용 인벤토리 카드 스타일 */
+    .inventory-card {
+      background: var(--card); border: 2px solid var(--border); border-radius: 10px;
+      padding: 10px 12px; display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 3px 0 var(--border);
+    }
+    .inventory-level-badge {
+      background: var(--pixel-yellow); color: var(--border); font-family: "Courier New", monospace;
+      font-size: 0.75rem; font-weight: 900; padding: 2px 6px; border-radius: 4px;
+      border: 1.5px solid var(--border);
+    }
 
     /* 가이드 슬라이더 */
     .guide-viewport { width: 100%; overflow: hidden; border: 2px solid var(--border); border-radius: 10px; background: var(--sub-bg); }
@@ -598,7 +612,7 @@
     <div class="stage-transition-text" id="stage-transition-text">START!</div>
   </div>
 
-  <!-- 업그레이드 선택 모달 -->
+  <!-- 스테이지 클리어 업그레이드 선택 모달 -->
   <div class="overlay" id="modal-upgrade">
     <div class="modal upgrade-modal">
       <div class="modal-header">
@@ -611,6 +625,25 @@
       </p>
 
       <div class="upgrade-card-list" id="upgrade-card-list"></div>
+    </div>
+  </div>
+
+  <!-- [신규] 보유 특성 및 업그레이드 현황 확인 모달 -->
+  <div class="overlay" id="modal-inventory">
+    <div class="modal upgrade-modal" style="max-height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <h3 style="color: #ff9800; display: flex; align-items: center; gap: 6px; font-size: 1.15rem;">
+          <span>📜</span> <span>보유 특성 및 업그레이드 현황</span>
+        </h3>
+        <button class="btn-close" onclick="ui.closeInventory()">✕</button>
+      </div>
+      <p style="font-size: 0.8rem; font-weight: 800; color: #777; margin: 0 0 10px 0;">
+        현재 적용 중인 모든 특성 및 누적 강화 상태입니다.
+      </p>
+
+      <div class="upgrade-card-list" id="inventory-card-list" style="overflow-y: auto; max-height: 55vh; padding-right: 2px;"></div>
+
+      <button class="btn-action" style="margin-top: 14px; width: 100%; max-width: none; padding: 10px 0; font-size: 1.05rem;" onclick="ui.closeInventory()">확인 및 계속하기</button>
     </div>
   </div>
 
@@ -652,7 +685,7 @@
           <div class="guide-slide">
             <b>3. 8종 특성 빌드 & 콤보 팁</b>
             <p style="font-size: .85rem; color: #666; text-align: left; margin: 8px 0 14px 0; line-height: 1.6;">
-              • <strong>새로운 8종 특성:</strong> 생존, 콤보, 점수, 긴급 회복 등 다양한 빌드를 조합하세요!<br>
+              • <strong>보유 특성 확인:</strong> 인게임 상단의 <strong>[⭐ 특성]</strong> 버튼으로 지금까지 고른 능력을 확인하세요!<br>
               • <strong>콤보 타이머:</strong> 1콤보는 7.5초로 넉넉하며 콤보가 늘어날수록 빨라집니다.<br>
               • 게이지 바를 채우면 스테이지가 클리어되고 새 보드가 생성됩니다.
             </p>
@@ -781,7 +814,9 @@
         <b>점수: <span id="score-text" style="color:var(--apple-red);">0</span></b>
       </div>
 
-      <div style="display: flex; gap: 6px;">
+      <!-- 상단 컨트롤 버튼 (보유 특성 확인 버튼 포함) -->
+      <div style="display: flex; gap: 5px;">
+        <button class="btn-header" style="background:#10b981;" onclick="ui.openInventory()">⭐ 특성</button>
         <button class="btn-header" style="background:#546e7a;" onclick="ui.modal('modal-settings', 1)">⚙️</button>
         <button class="btn-header" onclick="game.start(true)">재도전</button>
         <button class="btn-header" style="background:#374151;" onclick="ui.toMain()">메인</button>
@@ -1084,8 +1119,62 @@
         game.stop();
         $('stage-transition-overlay').classList.remove('show');
         this.modal('modal-upgrade', 0);
+        this.modal('modal-inventory', 0);
         $('screen-over').classList.add('hide');
         $('screen-title').classList.remove('hide');
+      },
+
+      // 보유 특성 인벤토리 열기 (게임 중 일시 정지)
+      openInventory() {
+        if (game.active) {
+          clearInterval(game.hpTimer);
+        }
+        playTone([[520, 0], [680, 0.06]], 'triangle', 0.12, 0.15);
+
+        const listEl = $('inventory-card-list');
+        listEl.innerHTML = '';
+
+        const acquiredKeys = Object.keys(game.acquiredUpgrades);
+
+        if (acquiredKeys.length === 0) {
+          listEl.innerHTML = `
+            <div style="padding: 24px 10px; text-align: center; color: #888; font-weight: 800; font-size: 0.9rem; line-height: 1.6;">
+              아직 획득한 특성이 없습니다.<br>
+              스테이지를 클리어하여 강력한 능력을 얻어보세요!
+            </div>
+          `;
+        } else {
+          acquiredKeys.forEach(id => {
+            const data = game.acquiredUpgrades[id];
+            const card = document.createElement('div');
+            card.className = 'inventory-card';
+            card.innerHTML = `
+              <div class="upgrade-icon-box" style="min-width: 40px; height: 40px; font-size: 1.6rem;">${data.icon}</div>
+              <div class="upgrade-content">
+                <div class="upgrade-header-row">
+                  <span class="upgrade-name">${data.name}</span>
+                  <div style="display:flex; align-items:center; gap:4px;">
+                    <span class="inventory-level-badge">Lv.${data.level}</span>
+                    <span class="upgrade-tag ${data.tagClass}">${data.tag}</span>
+                  </div>
+                </div>
+                <div class="upgrade-desc">${data.desc}</div>
+              </div>
+            `;
+            listEl.appendChild(card);
+          });
+        }
+
+        this.modal('modal-inventory', 1);
+      },
+
+      // 보유 특성 인벤토리 닫기 (게임 재개)
+      closeInventory() {
+        this.modal('modal-inventory', 0);
+        if (game.active) {
+          clearInterval(game.hpTimer);
+          game.hpTimer = setInterval(() => game.updateHp(-1), game.drainIntervalMs);
+        }
       }
     };
 
@@ -1121,6 +1210,9 @@
       hasEmergencyShield: false,
       shieldUsedThisStage: false,
       drainIntervalMs: 1000,
+
+      // 보유한 특성 관리 객체 { [id]: { ...item, level: number } }
+      acquiredUpgrades: {},
 
       combo: 0,
       comboBonus: 0,
@@ -1167,6 +1259,7 @@
         $('screen-title').classList.add('hide');
         $('screen-over').classList.add('hide');
         ui.modal('modal-upgrade', 0);
+        ui.modal('modal-inventory', 0);
 
         if (isFirstStart) {
           this.score = 0;
@@ -1181,6 +1274,7 @@
           this.stageClearBonus = 0;
           this.hasEmergencyShield = false;
           this.drainIntervalMs = 1000;
+          this.acquiredUpgrades = {};
         }
 
         this.shieldUsedThisStage = false;
@@ -1283,6 +1377,13 @@
             playTone([[523, 0], [784, 0.09], [1046, 0.18]], 'triangle', 0.28, 0.2);
             card.classList.add('selected');
             item.apply();
+
+            // 보유 특성 데이터 기록 및 레벨 증가
+            if (this.acquiredUpgrades[item.id]) {
+              this.acquiredUpgrades[item.id].level++;
+            } else {
+              this.acquiredUpgrades[item.id] = { ...item, level: 1 };
+            }
 
             // 1단계: 선택 펄스 애니메이션 후 모달 닫기
             setTimeout(() => {
