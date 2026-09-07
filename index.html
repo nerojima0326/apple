@@ -30,14 +30,10 @@
       align-items: center; justify-content: center; color: #fff; text-align: center; padding: 24px;
     }
     @media screen and (orientation: portrait) {
-      body.mobile-mode .rotate-device-overlay {
-        display: flex;
-      }
+      body.mobile-mode .rotate-device-overlay { display: flex; }
     }
     .rotate-phone-icon {
-      font-size: 3.8rem;
-      animation: phoneRotateAnim 1.6s ease-in-out infinite alternate;
-      margin-bottom: 14px;
+      font-size: 3.8rem; animation: phoneRotateAnim 1.6s ease-in-out infinite alternate; margin-bottom: 14px;
     }
     @keyframes phoneRotateAnim {
       0% { transform: rotate(0deg); }
@@ -45,13 +41,8 @@
       80% { transform: rotate(90deg); }
       100% { transform: rotate(90deg); }
     }
-    .rotate-text {
-      font-size: 1.35rem; font-weight: 900; color: var(--pixel-yellow);
-      margin-bottom: 8px; text-shadow: 2px 2px 0 #000;
-    }
-    .rotate-subtext {
-      font-size: 0.88rem; font-weight: 700; color: #bbb; line-height: 1.4;
-    }
+    .rotate-text { font-size: 1.35rem; font-weight: 900; color: var(--pixel-yellow); margin-bottom: 8px; text-shadow: 2px 2px 0 #000; }
+    .rotate-subtext { font-size: 0.88rem; font-weight: 700; color: #bbb; line-height: 1.4; }
 
     /* 팝업 공통 오버레이 & 모달 */
     .overlay {
@@ -70,16 +61,11 @@
     .btn-close { background: none; border: none; font-size: 1.4rem; color: #888; cursor: pointer; }
 
     /* 테마 선택 전용 UI */
-    .theme-toggle-wrapper {
-      display: flex; flex-direction: column; gap: 6px; width: 100%; margin: 10px 0 4px 0;
-    }
-    .theme-toggle-label {
-      font-size: 0.82rem; font-weight: 800; color: var(--text); opacity: 0.85;
-    }
+    .theme-toggle-wrapper { display: flex; flex-direction: column; gap: 6px; width: 100%; margin: 10px 0 4px 0; }
+    .theme-toggle-label { font-size: 0.82rem; font-weight: 800; color: var(--text); opacity: 0.85; }
     .theme-toggle-group {
-      display: flex; gap: 6px; width: 100%; background: #eaecef;
-      padding: 4px; border-radius: 12px; border: 2.5px solid var(--border);
-      box-shadow: 0 3px 0 var(--border);
+      display: flex; gap: 6px; width: 100%; background: #eaecef; padding: 4px;
+      border-radius: 12px; border: 2.5px solid var(--border); box-shadow: 0 3px 0 var(--border);
     }
     body.dark-mode .theme-toggle-group { background: #141416; }
 
@@ -93,14 +79,11 @@
     body.dark-mode .btn-theme-choice { color: #888; }
     body.dark-mode .btn-theme-choice:hover { background: rgba(255, 255, 255, 0.08); }
     .btn-theme-choice.active {
-      background: var(--pixel-yellow) !important;
-      color: var(--border) !important;
-      border: 2px solid var(--border);
-      box-shadow: 0 2px 0 var(--border);
-      transform: translateY(-1px);
+      background: var(--pixel-yellow) !important; color: var(--border) !important;
+      border: 2px solid var(--border); box-shadow: 0 2px 0 var(--border); transform: translateY(-1px);
     }
 
-    /* 타이틀 & 엔딩 오버레이 */
+    /* 타이틀 오버레이 */
     .screen-overlay {
       position: fixed; inset: 0; background-color: var(--sub-bg);
       background-image: radial-gradient(var(--border) 10%, transparent 11%);
@@ -121,7 +104,6 @@
       text-align: center;
     }
 
-    /* 화면 비율 선택 토글 */
     .screen-ratio-wrapper {
       width: 100%; max-width: 300px; margin-bottom: 16px;
       display: flex; flex-direction: column; align-items: center; gap: 6px;
@@ -130,8 +112,7 @@
     body.dark-mode .ratio-label { color: #aaa; }
     .screen-ratio-group {
       display: flex; gap: 6px; width: 100%; background: #eaecef;
-      padding: 4px; border-radius: 12px; border: 2.5px solid var(--border);
-      box-shadow: 0 3px 0 var(--border);
+      padding: 4px; border-radius: 12px; border: 2.5px solid var(--border); box-shadow: 0 3px 0 var(--border);
     }
     body.dark-mode .screen-ratio-group { background: #141416; }
     
@@ -139,25 +120,18 @@
       flex: 1; border: 2px solid transparent; background: transparent; padding: 7px 4px;
       font-size: 0.85rem; font-weight: 800; color: #555; border-radius: 8px; cursor: pointer;
       display: flex; flex-direction: column; align-items: center; gap: 2px;
-      touch-action: manipulation;
-      transition: background-color 0.15s, transform 0.1s, border-color 0.15s;
+      touch-action: manipulation; transition: background-color 0.15s, transform 0.1s, border-color 0.15s;
     }
     .btn-ratio-choice:hover { background: rgba(255, 255, 255, 0.6); }
     body.dark-mode .btn-ratio-choice:hover { background: rgba(255, 255, 255, 0.1); }
     .btn-ratio-choice.active {
-      background: var(--pixel-yellow) !important;
-      color: var(--border) !important;
-      border: 2px solid var(--border);
-      box-shadow: 0 2px 0 var(--border);
-      transform: translateY(-1px);
+      background: var(--pixel-yellow) !important; color: var(--border) !important;
+      border: 2px solid var(--border); box-shadow: 0 2px 0 var(--border); transform: translateY(-1px);
     }
 
-    /* 메인 화면 픽셀 사과 */
     .pixel-apple-big {
       width: 74px; height: 74px; background: var(--apple-red); position: relative; margin-bottom: 14px;
-      box-shadow: 
-        0 -6px 0 0 var(--border), 0 6px 0 0 var(--border), -6px 0 0 0 var(--border), 6px 0 0 0 var(--border),
-        inset -6px -6px 0 0 #b71c1c, inset 6px 6px 0 0 #ff7961;
+      box-shadow: 0 -6px 0 0 var(--border), 0 6px 0 0 var(--border), -6px 0 0 0 var(--border), 6px 0 0 0 var(--border), inset -6px -6px 0 0 #b71c1c, inset 6px 6px 0 0 #ff7961;
       animation: heroFloat 2.4s ease-in-out infinite alternate;
     }
     .pixel-apple-big::before {
@@ -168,22 +142,15 @@
       content: ""; position: absolute; top: -10px; left: 39px; width: 14px; height: 8px;
       background: #43a047; box-shadow: 0 -4px 0 0 var(--border), 4px 0 0 0 var(--border), 0 4px 0 0 var(--border);
     }
-    @keyframes heroFloat {
-      from { transform: translateY(0); }
-      to { transform: translateY(-10px); }
-    }
+    @keyframes heroFloat { from { transform: translateY(0); } to { transform: translateY(-10px); } }
 
-    /* 배경 데코 */
     .title-bg-deco { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
     .deco-item { position: absolute; opacity: 0.4; animation: floatAround 6s ease-in-out infinite alternate; }
     .deco-item.d1 { top: 12%; left: 14%; }
     .deco-item.d2 { top: 22%; right: 15%; animation-delay: 1.2s; }
     .deco-item.d3 { bottom: 18%; left: 16%; animation-delay: 2.5s; }
     .deco-item.d4 { bottom: 15%; right: 18%; animation-delay: 0.8s; }
-    @keyframes floatAround {
-      0% { transform: translateY(0px) rotate(0deg); }
-      100% { transform: translateY(-16px) rotate(10deg); }
-    }
+    @keyframes floatAround { 0% { transform: translateY(0px) rotate(0deg); } 100% { transform: translateY(-16px) rotate(10deg); } }
     .mini-pixel-apple {
       width: 22px; height: 22px; background: var(--apple-red); position: relative;
       box-shadow: 0 -2px 0 0 var(--border), 0 2px 0 0 var(--border), -2px 0 0 0 var(--border), 2px 0 0 0 var(--border), inset -2px -2px 0 0 #b71c1c, inset 2px 2px 0 0 #ff7961;
@@ -196,7 +163,6 @@
       transform: rotate(45deg);
     }
 
-    /* 버튼 공통 */
     button { cursor: pointer; font-family: inherit; touch-action: manipulation; }
     .btn-group { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
     .btn-action {
@@ -217,18 +183,16 @@
     .btn-sub:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
     .btn-header {
       background: var(--apple-red); color: #fff; border: none; padding: 7px 11px; font-size: .82rem;
-      font-weight: 800; border-radius: 6px; box-shadow: 0 2px 0 var(--border);
-      transition: transform .1s;
+      font-weight: 800; border-radius: 6px; box-shadow: 0 2px 0 var(--border); transition: transform .1s;
     }
     .btn-header:active { transform: translateY(1px); box-shadow: none; }
 
-    /* 업그레이드 모달 & 인벤토리 모달 */
+    /* 모달 카드 스타일 */
     .upgrade-modal {
       max-width: 470px; width: 92%; padding: 20px 16px;
       background: linear-gradient(180deg, var(--card) 0%, var(--sub-bg) 100%);
     }
     .upgrade-card-list { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 6px 0; }
-    
     .upgrade-card {
       background: var(--card); border: 2.5px solid var(--border); border-radius: 12px;
       padding: 11px 13px; display: flex; align-items: center; gap: 11px; cursor: pointer;
@@ -239,30 +203,20 @@
     }
     .upgrade-card:hover {
       transform: translateY(-2px) scale(1.01);
-      box-shadow: 0 7px 0 var(--border), 0 0 14px rgba(255, 214, 0, 0.35);
-      border-color: #ff9800;
+      box-shadow: 0 7px 0 var(--border), 0 0 14px rgba(255, 214, 0, 0.35); border-color: #ff9800;
     }
     .upgrade-card:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--border); }
     .upgrade-card.selected { animation: cardSelectPulse 0.3s ease-out forwards; }
-
     .upgrade-card:nth-child(1) { animation-delay: 0.05s; }
     .upgrade-card:nth-child(2) { animation-delay: 0.14s; }
     .upgrade-card:nth-child(3) { animation-delay: 0.23s; }
 
-    @keyframes cardFlyIn {
-      0% { transform: translateY(30px) scale(0.88); opacity: 0; }
-      100% { transform: translateY(0) scale(1); opacity: 1; }
-    }
-    @keyframes cardSelectPulse {
-      0% { transform: scale(1); background: var(--pixel-yellow); }
-      50% { transform: scale(1.04); }
-      100% { transform: scale(0.96); opacity: 0; }
-    }
+    @keyframes cardFlyIn { 0% { transform: translateY(30px) scale(0.88); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+    @keyframes cardSelectPulse { 0% { transform: scale(1); background: var(--pixel-yellow); } 50% { transform: scale(1.04); } 100% { transform: scale(0.96); opacity: 0; } }
 
     .upgrade-icon-box {
       font-size: 1.8rem; min-width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
-      background: var(--sub-bg); border: 2px solid var(--border); border-radius: 9px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+      background: var(--sub-bg); border: 2px solid var(--border); border-radius: 9px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
     }
     .upgrade-content { display: flex; flex-direction: column; gap: 2px; text-align: left; flex: 1; }
     .upgrade-header-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
@@ -283,16 +237,13 @@
 
     .inventory-card {
       background: var(--card); border: 2px solid var(--border); border-radius: 10px;
-      padding: 10px 12px; display: flex; align-items: center; gap: 10px;
-      box-shadow: 0 3px 0 var(--border);
+      padding: 10px 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 3px 0 var(--border);
     }
     .inventory-level-badge {
       background: var(--pixel-yellow); color: var(--border); font-family: "Courier New", monospace;
-      font-size: 0.75rem; font-weight: 900; padding: 2px 6px; border-radius: 4px;
-      border: 1.5px solid var(--border);
+      font-size: 0.75rem; font-weight: 900; padding: 2px 6px; border-radius: 4px; border: 1.5px solid var(--border);
     }
 
-    /* [인게임 시작 전 노출되는 게임방법 가이드 모달] */
     .guide-modal {
       max-width: 440px; width: 92%; max-height: 90vh; max-height: 90dvh;
       display: flex; flex-direction: column; overflow-y: auto;
@@ -315,10 +266,11 @@
       animation: pBlink 0.35s steps(2, start) infinite;
     }
 
-    /* 게임 보드 컨테이너 */
+    /* 게임 보드 컨테이너 & 블레이드 피버 */
     .game-container {
       background: var(--card); padding: 14px 16px; border-radius: 16px; box-shadow: 0 10px 25px var(--shadow);
       display: flex; flex-direction: column; align-items: center; position: relative; max-width: 100vw;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     .game-container.shake { animation: shake .3s both; }
     @keyframes shake {
@@ -327,32 +279,75 @@
       30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
       40%, 60% { transform: translate3d(5px, 0, 0); }
     }
+
+    .game-container.fever-mode {
+      border: 3.5px solid #ff1744 !important;
+      animation: feverBorderPulse 0.45s ease-in-out infinite alternate;
+    }
+    @keyframes feverBorderPulse {
+      0% { box-shadow: 0 0 18px rgba(255, 23, 68, 0.7), inset 0 0 12px rgba(255, 214, 0, 0.4); }
+      100% { box-shadow: 0 0 34px rgba(255, 152, 0, 0.95), inset 0 0 22px rgba(255, 23, 68, 0.6); }
+    }
+
+    .fever-banner {
+      position: absolute; top: -38px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(90deg, #ff1744, #ff9800, #ff1744);
+      background-size: 200% 100%; animation: gradientSlide 1.2s linear infinite;
+      color: #fff; font-family: "Courier New", monospace; font-size: 0.92rem; font-weight: 900;
+      padding: 4px 14px; border-radius: 20px; border: 2.5px solid #fff;
+      box-shadow: 0 0 14px #ff1744; display: none; white-space: nowrap; z-index: 50;
+    }
+    @keyframes gradientSlide { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+    .game-container.fever-mode .fever-banner { display: block; }
+
     .header-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 8px; gap: 8px; }
 
     /* 상단 목표점수 게이지 바 */
-    .target-progress-container {
-      width: 100%; margin-bottom: 10px; display: flex; flex-direction: column; gap: 3px;
-    }
+    .target-progress-container { width: 100%; margin-bottom: 5px; display: flex; flex-direction: column; gap: 2px; }
     .target-progress-label {
       display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.82rem; font-weight: 900; color: var(--text); letter-spacing: 0.5px;
+      font-size: 0.8rem; font-weight: 900; color: var(--text); letter-spacing: 0.5px;
     }
-    .target-progress-pct { font-family: "Courier New", monospace; color: var(--apple-red); font-size: 0.95rem; }
+    .target-progress-pct { font-family: "Courier New", monospace; color: var(--apple-red); font-size: 0.92rem; }
     .target-progress-track {
-      width: 100%; height: 12px; background: #e0e3e6; border: 2px solid var(--border);
-      border-radius: 6px; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+      width: 100%; height: 11px; background: #e0e3e6; border: 2px solid var(--border);
+      border-radius: 6px; overflow: hidden; position: relative;
     }
     body.dark-mode .target-progress-track { background: #26262f; }
     .target-progress-fill {
       width: 0%; height: 100%; background: linear-gradient(90deg, #ff9800, #4caf50);
       transition: width 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
     }
+
+    /* [신규: 전용 피버 게이지 바 UI] */
+    .fever-gauge-container {
+      width: 100%; margin-bottom: 10px; display: flex; flex-direction: column; gap: 2px;
+    }
+    .fever-gauge-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.78rem; font-weight: 900; letter-spacing: 0.5px;
+    }
+    .fever-title-text { color: #ff1744; font-family: "Courier New", monospace; }
+    .fever-pct-text { color: #ff9800; font-family: "Courier New", monospace; font-size: 0.82rem; }
+    .fever-gauge-track {
+      width: 100%; height: 10px; background: #e0e3e6; border: 2px solid var(--border);
+      border-radius: 6px; overflow: hidden; position: relative;
+    }
+    body.dark-mode .fever-gauge-track { background: #26262f; }
+    .fever-gauge-fill {
+      width: 0%; height: 100%;
+      background: linear-gradient(90deg, #ff9800, #ff1744, #ffd600);
+      background-size: 200% 100%;
+      transition: width 0.2s linear;
+    }
+    .game-container.fever-mode .fever-gauge-fill {
+      animation: gradientSlide 0.8s linear infinite;
+    }
     
     .board-wrapper {
       position: relative; background: var(--sub-bg); padding: 10px; border-radius: 12px;
       border: 2px solid var(--board-border); overflow: visible; touch-action: none;
     }
-    
     .board { display: grid; gap: var(--apple-gap); touch-action: none; }
 
     /* 픽셀 사과 */
@@ -376,7 +371,16 @@
     }
     .apple.cleared { visibility: hidden; pointer-events: none; }
 
-    /* 합이 10일 때 사과 발광 */
+    .apple.respawning {
+      visibility: visible !important;
+      animation: applePopGrowIn 0.38s cubic-bezier(0.18, 0.89, 0.32, 1.35) forwards; z-index: 15;
+    }
+    @keyframes applePopGrowIn {
+      0% { transform: scale(0); opacity: 0; filter: brightness(1.8); }
+      70% { transform: scale(1.22); opacity: 1; filter: brightness(1.2); }
+      100% { transform: scale(1); opacity: 1; filter: brightness(1); }
+    }
+
     .apple.match-valid {
       transform: scale(1.16); z-index: 18;
       box-shadow:
@@ -416,8 +420,7 @@
     }
     .apple.exploding {
       animation: appleExplode 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-      pointer-events: none;
-      z-index: 20;
+      pointer-events: none; z-index: 20;
     }
 
     .pixel-particle {
@@ -457,8 +460,7 @@
 
     /* 전면 대형 카운트다운 & 스테이지 전환 팝업 */
     .stage-transition-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh;
       display: flex; align-items: center; justify-content: center;
       background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(4px);
       z-index: 2000; opacity: 0; pointer-events: none !important; transition: opacity .15s ease;
@@ -466,18 +468,12 @@
     .stage-transition-overlay.show { opacity: 1; pointer-events: auto !important; }
     
     .stage-transition-text {
-      font-family: "Courier New", monospace;
-      font-size: 7.5rem; font-weight: 900; letter-spacing: 4px;
+      font-family: "Courier New", monospace; font-size: 7.5rem; font-weight: 900; letter-spacing: 4px;
       text-align: center; line-height: 1; color: var(--pixel-yellow);
-      text-shadow: 
-        -5px -5px 0 var(--border), 5px -5px 0 var(--border),
-        -5px 5px 0 var(--border), 5px 5px 0 var(--border),
-        0 12px 0 #b71c1c;
+      text-shadow: -5px -5px 0 var(--border), 5px -5px 0 var(--border), -5px 5px 0 var(--border), 5px 5px 0 var(--border), 0 12px 0 #b71c1c;
       transform: scale(0.2); opacity: 0; margin: 0;
     }
-    .stage-transition-text.pop {
-      animation: stagePop var(--pop-dur, .85s) cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-    }
+    .stage-transition-text.pop { animation: stagePop var(--pop-dur, .85s) cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
     @keyframes stagePop {
       0% { transform: scale(0.2); opacity: 0; }
       25% { transform: scale(1.35); opacity: 1; }
@@ -491,46 +487,30 @@
       overflow: visible; display: flex; align-items: center; transform-origin: 0px 16px;
       animation: swordSlashSwipe 0.3s cubic-bezier(0.08, 0.82, 0.17, 1) forwards;
     }
-
     @keyframes swordSlashSwipe {
-      0% {
-        clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
-        transform: rotate(var(--slash-angle, 0deg)) scaleY(0.4); opacity: 0;
-      }
-      20% {
-        clip-path: polygon(0% 0%, 50% 0%, 40% 100%, 0% 100%);
-        opacity: 1; transform: rotate(var(--slash-angle, 0deg)) scaleY(1.35);
-      }
-      50% {
-        clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%);
-        opacity: 1; transform: rotate(var(--slash-angle, 0deg)) scaleY(1.1);
-      }
-      80% {
-        clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 20% 100%);
-        opacity: 0.85;
-      }
-      100% {
-        clip-path: polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%);
-        opacity: 0; transform: rotate(var(--slash-angle, 0deg)) scaleY(0.2);
-      }
+      0% { clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%); transform: rotate(var(--slash-angle, 0deg)) scaleY(0.4); opacity: 0; }
+      20% { clip-path: polygon(0% 0%, 50% 0%, 40% 100%, 0% 100%); opacity: 1; transform: rotate(var(--slash-angle, 0deg)) scaleY(1.35); }
+      50% { clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%); opacity: 1; transform: rotate(var(--slash-angle, 0deg)) scaleY(1.1); }
+      80% { clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 20% 100%); opacity: 0.85; }
+      100% { clip-path: polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%); opacity: 0; transform: rotate(var(--slash-angle, 0deg)) scaleY(0.2); }
     }
-
     .pixel-sword-slash svg {
-      width: 100%; height: 100%; image-rendering: pixelated;
-      shape-rendering: crispEdges; filter: drop-shadow(0 0 8px #ff1744);
+      width: 100%; height: 100%; image-rendering: pixelated; shape-rendering: crispEdges; filter: drop-shadow(0 0 8px #ff1744);
     }
 
     /* 선택 박스 */
     .selection-box { position: absolute; pointer-events: none; display: none; z-index: 10; border: 3px dashed #1976d2; background: rgba(255, 214, 0, 0.08); }
     .selection-box.valid {
-      border: 3px dotted #ff1744 !important;
-      outline: 2px solid var(--pixel-yellow) !important;
-      background: rgba(255, 214, 0, 0.16) !important;
-      box-shadow: 0 0 14px rgba(255, 23, 68, 0.5) !important;
+      border: 3px dotted #ff1744 !important; outline: 2px solid var(--pixel-yellow) !important;
+      background: rgba(255, 214, 0, 0.16) !important; box-shadow: 0 0 14px rgba(255, 23, 68, 0.5) !important;
+    }
+    /* 피버 모드 드래그 스타일 */
+    .selection-box.fever-drag {
+      border: 3px solid #ff1744 !important; outline: 3px dashed #ffd600 !important;
+      background: rgba(255, 23, 68, 0.28) !important; box-shadow: 0 0 20px rgba(255, 23, 68, 0.8) !important;
     }
     .selection-box.diag-matched {
-      border-color: transparent !important; outline: none !important;
-      background: transparent !important; box-shadow: none !important;
+      border-color: transparent !important; outline: none !important; background: transparent !important; box-shadow: none !important;
     }
     
     .sum-indicator {
@@ -539,7 +519,7 @@
       white-space: nowrap; border: 1.5px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.35);
       z-index: 30; pointer-events: none;
     }
-    .selection-box.valid .sum-indicator, .selection-box.diag-matched .sum-indicator {
+    .selection-box.valid .sum-indicator, .selection-box.diag-matched .sum-indicator, .selection-box.fever-drag .sum-indicator {
       background: var(--pixel-yellow); color: var(--border); border: 2px solid var(--border);
     }
 
@@ -563,11 +543,7 @@
     }
     .combo-widget.active { opacity: 1; transform: scale(1); }
     .combo-widget.pop { animation: comboPopAnim 0.16s ease-out; }
-    @keyframes comboPopAnim {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-      100% { transform: scale(1); }
-    }
+    @keyframes comboPopAnim { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
     .combo-title { font-size: 0.85rem; font-weight: 900; color: #ff9800; letter-spacing: 1.5px; }
     .combo-count {
       font-size: 2.6rem; font-weight: 900; color: var(--apple-red); line-height: 1.05;
@@ -580,19 +556,16 @@
       color: var(--text); margin-bottom: 6px;
     }
     .combo-progress-bg {
-      width: 100%; height: 8px; background: #e0e0e0; border: 1.5px solid var(--border);
-      border-radius: 4px; overflow: hidden;
+      width: 100%; height: 8px; background: #e0e0e0; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden;
     }
     body.dark-mode .combo-progress-bg { background: #2a2a32; }
     .combo-progress-bar {
-      width: 100%; height: 100%; background: linear-gradient(90deg, #ff9800, #e53935);
-      transition: width 0.08s linear;
+      width: 100%; height: 100%; background: linear-gradient(90deg, #ff9800, #e53935); transition: width 0.08s linear;
     }
 
     .stage-badge {
       font-size: .8rem; font-weight: 900; padding: 2px 6px; border: 1.5px solid var(--border);
-      border-radius: 5px; background: var(--pixel-yellow); color: var(--border); display: flex;
-      align-items: center; gap: 4px;
+      border-radius: 5px; background: var(--pixel-yellow); color: var(--border); display: flex; align-items: center; gap: 4px;
     }
 
     @media (max-width: 980px) {
@@ -611,8 +584,7 @@
         text-shadow: -4px -4px 0 var(--border), 4px -4px 0 var(--border), -4px 4px 0 var(--border), 4px 4px 0 var(--border), 0 8px 0 #b71c1c;
       }
       .title-card {
-        padding: 10px 24px; max-height: 96dvh; border-width: 3px;
-        box-shadow: 0 6px 0 var(--border), 0 10px 20px var(--shadow);
+        padding: 10px 24px; max-height: 96dvh; border-width: 3px; box-shadow: 0 6px 0 var(--border), 0 10px 20px var(--shadow);
       }
       .pixel-apple-big {
         width: 42px; height: 42px; margin-bottom: 6px;
@@ -661,7 +633,6 @@
       <p style="font-size: 0.83rem; font-weight: 800; color: #666; margin: 0 0 10px 0;">
         다음 스테이지를 돌파할 특성을 하나 선택하세요!
       </p>
-
       <div class="upgrade-card-list" id="upgrade-card-list"></div>
     </div>
   </div>
@@ -678,14 +649,12 @@
       <p style="font-size: 0.8rem; font-weight: 800; color: #777; margin: 0 0 10px 0;">
         현재 적용 중인 모든 특성 및 누적 강화 상태입니다.
       </p>
-
       <div class="upgrade-card-list" id="inventory-card-list" style="overflow-y: auto; max-height: 55vh; padding-right: 2px;"></div>
-
       <button class="btn-action" style="margin-top: 14px; width: 100%; max-width: none; padding: 10px 0; font-size: 1.05rem;" onclick="ui.closeInventory()">확인 및 계속하기</button>
     </div>
   </div>
 
-  <!-- [게임 시작 전 화면에서 나타나는 가이드 모달] -->
+  <!-- 게임 시작 전 가이드 모달 -->
   <div class="overlay" id="modal-guide">
     <div class="modal guide-modal">
       <div class="modal-header">
@@ -697,7 +666,7 @@
         <div class="guide-track" id="guide-track">
           <div class="guide-slide">
             <b>1. 자유로운 드래그 매칭</b>
-            <p style="font-size: .85rem; color: #666; margin: 6px 0 10px 0;">왼쪽/오른쪽/위/아래 어느 방향에서 시작해도 합이 10이면 모두 터집니다.</p>
+            <p style="font-size: .85rem; color: #666; margin: 6px 0 10px 0;">어느 방향이든 네모/직선 드래그로 합이 10이면 모두 베어집니다.</p>
             <div class="mini-demo-wrapper">
               <div class="mini-board" style="grid-template-columns: repeat(4, 24px); grid-template-rows: repeat(3, 24px);">
                 <div class="mini-apple demo-highlight">1</div><div class="mini-apple demo-highlight">2</div><div class="mini-apple">7</div><div class="mini-apple">5</div>
@@ -724,15 +693,15 @@
           </div>
           
           <div class="guide-slide">
-            <b>3. 8종 특성 빌드 & 콤보 팁</b>
+            <b>3. 10콤보 피버 & 드래그 참격</b>
             <p style="font-size: .85rem; color: #666; text-align: left; margin: 8px 0 14px 0; line-height: 1.6;">
-              • <strong>보유 특성 확인:</strong> 인게임 상단의 <strong>[⭐ 특성]</strong> 버튼으로 지금까지 고른 능력을 확인하세요!<br>
-              • <strong>콤보 타이머:</strong> 1콤보는 7.5초로 넉넉하며 콤보가 늘어날수록 빨라집니다.<br>
-              • 게이지 바를 채우면 스테이지가 클리어되고 새 보드가 생성됩니다.
+              • <strong>🔥 블레이드 피버 타임:</strong> 10콤보를 달성해 게이지를 100% 채우면 피버가 발동합니다!<br>
+              • <strong>⚔️ 피버 드래그:</strong> 피버 중에는 원하는 사각형/직선 영역을 드래그하여 <strong>숫자 합 상관없이 한 번에 전부 베어버립니다!</strong><br>
+              • <strong>🍎 무한 재생성:</strong> 제거된 사과는 잠시 후 새 숫자로 퐁퐁 자라납니다.
             </p>
             <div class="mini-demo-wrapper">
               <div class="mini-board" style="padding: 8px 20px; font-weight: 900; font-size: 0.9rem; color: var(--apple-red); letter-spacing: 1.5px;">
-                ⚡ SLASH & REACH!
+                🔥 FEVER DRAG & SLICE!
               </div>
             </div>
           </div>
@@ -745,7 +714,6 @@
         <button class="btn-sub" id="btn-guide-next" onclick="ui.moveGuide(1)">다음 (D) ▶</button>
       </div>
 
-      <!-- 준비가 끝나면 언제든 게임을 시작할 수 있는 버튼 -->
       <button class="btn-action" style="margin-top: 12px; width: 100%; max-width: none; padding: 11px 0; font-size: 1.1rem;" onclick="ui.finishGuideAndStart()">
         게임 시작 (Enter) ▶
       </button>
@@ -776,7 +744,7 @@
     </div>
   </div>
 
-  <!-- 메인 화면 (게임방법 버튼 제거됨) -->
+  <!-- 메인 화면 -->
   <div class="screen-overlay" id="screen-title">
     <div class="title-bg-deco">
       <div class="deco-item d1"><div class="mini-pixel-apple"></div></div>
@@ -804,7 +772,6 @@
       </div>
 
       <div class="btn-group">
-        <!-- 메인 화면에서 게임 시작 클릭 시 가이드와 함께 인게임 진입 -->
         <button class="btn-action" type="button" onclick="game.start(true, true)">게임 시작</button>
         <button class="btn-sub" type="button" onclick="ui.modal('modal-settings', 1)">⚙️ 환경 설정</button>
       </div>
@@ -834,10 +801,11 @@
 
   <!-- 인게임 화면 -->
   <div class="game-container" id="game-container">
+    <div class="fever-banner">🔥 BLADE FEVER TIME! 자유 드래그 참격! 🔥</div>
     
     <!-- 우측 대형 콤보 위젯 및 타이머 -->
     <div class="combo-widget" id="combo-widget">
-      <div class="combo-title">COMBO</div>
+      <div class="combo-title" id="combo-title">COMBO</div>
       <div class="combo-count" id="combo-count">0</div>
       <div class="combo-timer-badge">
         <span>⏱️</span><span id="combo-timer-text">7.5초</span>
@@ -879,6 +847,17 @@
       </div>
     </div>
 
+    <!-- [신규: 전용 FEVER 게이지 바 UI (10콤보 도달 시 100%)] -->
+    <div class="fever-gauge-container">
+      <div class="fever-gauge-label">
+        <span class="fever-title-text" id="fever-title-text">🔥 FEVER GAUGE</span>
+        <span class="fever-pct-text" id="fever-pct-text">0 / 10 COMBO</span>
+      </div>
+      <div class="fever-gauge-track">
+        <div class="fever-gauge-fill" id="fever-gauge-fill"></div>
+      </div>
+    </div>
+
     <div class="board-wrapper" id="board-wrapper">
       <svg id="board-svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:14;"></svg>
       <div class="board" id="board"></div>
@@ -890,16 +869,13 @@
   <script>
     const $ = id => document.getElementById(id);
     
-    // 오디오 컨텍스트 안전 초기화
     let audio = null;
     function getAudioContext() {
       if (!audio) {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) audio = new AudioCtx();
       }
-      if (audio && audio.state === 'suspended') {
-        audio.resume();
-      }
+      if (audio && audio.state === 'suspended') audio.resume();
       return audio;
     }
 
@@ -915,17 +891,30 @@
       osc.start(); osc.stop(ctx.currentTime + dur);
     }
 
-    function playSlashSound() {
+    function playSlashSound(pitchMultiplier = 1.0) {
       const ctx = getAudioContext();
       if (!ctx) return;
       const osc = ctx.createOscillator(), gain = ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(1400, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(160, ctx.currentTime + 0.16);
+      osc.frequency.setValueAtTime(1400 * pitchMultiplier, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(180 * pitchMultiplier, ctx.currentTime + 0.14);
       gain.gain.setValueAtTime(0.25, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.16);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.14);
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(); osc.stop(ctx.currentTime + 0.16);
+      osc.start(); osc.stop(ctx.currentTime + 0.14);
+    }
+
+    function playPopSound() {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(740, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.08);
     }
 
     async function requestForcedLandscape() {
@@ -936,9 +925,7 @@
         if (screen.orientation && screen.orientation.lock) {
           await screen.orientation.lock('landscape');
         }
-      } catch (err) {
-        console.warn("Screen orientation lock is not supported or was blocked by policy:", err);
-      }
+      } catch (err) {}
     }
 
     function spawnAppleParticles(el) {
@@ -988,7 +975,6 @@
       slashEl.className = 'pixel-sword-slash';
 
       let x1, y1, x2, y2;
-
       if (isDiag && sRect && eRect) {
         x1 = sRect.left - bRect.left + sRect.width / 2;
         y1 = sRect.top - bRect.top + sRect.height / 2;
@@ -1046,96 +1032,61 @@
           <polygon points="25,12 55,9 90,9 120,11 135,16 120,21 90,23 55,23 25,20" fill="#ff5252" />
           <polygon points="40,14 75,12 110,13 125,16 110,19 75,20 40,18" fill="#ffd600" />
           <line x1="20" y1="16" x2="140" y2="16" stroke="#ffffff" stroke-width="3" stroke-dasharray="6 3" stroke-linecap="square" />
-          <rect x="45" y="2" width="3" height="3" fill="#ffd600" />
-          <rect x="85" y="1" width="4" height="4" fill="#ff1744" />
-          <rect x="115" y="3" width="3" height="3" fill="#ffffff" />
-          <rect x="60" y="27" width="3" height="3" fill="#ff1744" />
-          <rect x="95" y="28" width="4" height="4" fill="#ffd600" />
-          <rect x="130" y="26" width="3" height="3" fill="#ffffff" />
+          <rect x="45" y="2" width="3" height="3" fill="#ffd600" /><rect x="85" y="1" width="4" height="4" fill="#ff1744" /><rect x="115" y="3" width="3" height="3" fill="#ffffff" />
         </svg>
       `;
 
       $('board-wrapper').appendChild(slashEl);
-      playSlashSound();
+      playSlashSound(game.isFever ? 1.3 : 1.0);
       setTimeout(() => slashEl.remove(), 320);
     }
 
     const UPGRADE_POOL = [
       {
-        id: 'fast_hint',
-        icon: '💡',
-        tag: '보조', tagClass: 'tag-utility',
-        name: '빠른 통찰 (천리안)',
-        desc: '힌트 대기시간 <span class="upgrade-stat-highlight">-1.5초</span> 단축 (최소 1.5초 유지)',
+        id: 'fast_hint', icon: '💡', tag: '보조', tagClass: 'tag-utility',
+        name: '빠른 통찰 (천리안)', desc: '힌트 대기시간 <span class="upgrade-stat-highlight">-1.5초</span> 단축',
         apply: () => { game.hintDelay = Math.max(1500, game.hintDelay - 1500); }
       },
       {
-        id: 'max_hp',
-        icon: '💖',
-        tag: '생존', tagClass: 'tag-survival',
-        name: '생명력 각성 (체력 증강)',
-        desc: '최대 HP <span class="upgrade-stat-highlight">+30</span> 증가 & 즉시 체력 <span class="upgrade-stat-highlight">+50 HP</span> 회복',
-        apply: () => {
-          game.maxHp += 30;
-          game.updateHp(50);
-        }
+        id: 'max_hp', icon: '💖', tag: '생존', tagClass: 'tag-survival',
+        name: '생명력 각성 (체력 증강)', desc: '최대 HP <span class="upgrade-stat-highlight">+30</span> 증가 & 체력 <span class="upgrade-stat-highlight">+50 HP</span> 회복',
+        apply: () => { game.maxHp += 30; game.updateHp(50); }
       },
       {
-        id: 'combo_time',
-        icon: '⚡',
-        tag: '콤보', tagClass: 'tag-combo',
-        name: '콤보 마스터 (시간 연장)',
-        desc: '모든 단계 콤보 제한시간 기본 <span class="upgrade-stat-highlight">+2.0초</span> 연장',
+        id: 'combo_time', icon: '⚡', tag: '콤보', tagClass: 'tag-combo',
+        name: '콤보 마스터 (시간 연장)', desc: '모든 단계 콤보 제한시간 기본 <span class="upgrade-stat-highlight">+2.0초</span> 연장',
         apply: () => { game.comboBonus += 2.0; }
       },
       {
-        id: 'bonus_score',
-        icon: '🍎',
-        tag: '점수', tagClass: 'tag-score',
-        name: '풍요의 수확 (열매 가치)',
-        desc: '사과 매칭 시 개당 <span class="upgrade-stat-highlight">+2점</span>의 추가 보너스 점수 획득',
+        id: 'bonus_score', icon: '🍎', tag: '점수', tagClass: 'tag-score',
+        name: '풍요의 수확 (열매 가치)', desc: '사과 매칭 시 개당 <span class="upgrade-stat-highlight">+2점</span> 추가 보너스 점수',
         apply: () => { game.bonusScorePerApple += 2; }
       },
       {
-        id: 'slow_drain',
-        icon: '⏳',
-        tag: '생존', tagClass: 'tag-survival',
-        name: '여유로운 시간 (소모 완화)',
-        desc: '초당 HP 자연 감소 속도 <span class="upgrade-stat-highlight">30% 둔화</span>',
+        id: 'slow_drain', icon: '⏳', tag: '생존', tagClass: 'tag-survival',
+        name: '여유로운 시간 (소모 완화)', desc: '초당 HP 자연 감소 속도 <span class="upgrade-stat-highlight">30% 둔화</span>',
         apply: () => { game.drainIntervalMs = Math.floor(game.drainIntervalMs * 1.3); }
       },
       {
-        id: 'fever_strike',
-        icon: '🔥',
-        tag: '콤보', tagClass: 'tag-combo',
-        name: '피버 스트라이크 (콤보 폭발)',
-        desc: '콤보 보너스 배율 <span class="upgrade-stat-highlight">2배 증가</span> (콤보당 점수 2점 → 4점)',
+        id: 'fever_strike', icon: '🔥', tag: '콤보', tagClass: 'tag-combo',
+        name: '피버 스트라이크 (콤보 폭발)', desc: '콤보 보너스 배율 <span class="upgrade-stat-highlight">2배 증가</span> (콤보당 점수 2점 → 4점)',
         apply: () => { game.comboMultiplier += 2; }
       },
       {
-        id: 'emergency_heal',
-        icon: '🛡️',
-        tag: '생존', tagClass: 'tag-survival',
-        name: '긴급 소생 실드 (불사조)',
-        desc: 'HP가 25 이하로 떨어지면 즉시 <span class="upgrade-stat-highlight">+35 HP</span> 긴급 수혈 (스테이지당 1회)',
+        id: 'emergency_heal', icon: '🛡️', tag: '생존', tagClass: 'tag-survival',
+        name: '긴급 소생 실드 (불사조)', desc: 'HP가 25 이하로 떨어지면 즉시 <span class="upgrade-stat-highlight">+35 HP</span> 회복 (스테이지당 1회)',
         apply: () => { game.hasEmergencyShield = true; }
       },
       {
-        id: 'apple_harvest',
-        icon: '✨',
-        tag: '점수', tagClass: 'tag-score',
-        name: '황금빛 결실 (클리어 보너스)',
-        desc: '스테이지 통과 시마다 즉시 <span class="upgrade-stat-highlight">+25점</span>의 보너스 점수 지급',
+        id: 'apple_harvest', icon: '✨', tag: '점수', tagClass: 'tag-score',
+        name: '황금빛 결실 (클리어 보너스)', desc: '스테이지 통과 시마다 즉시 <span class="upgrade-stat-highlight">+25점</span> 보너스 지급',
         apply: () => { game.stageClearBonus += 25; }
       }
     ];
 
     const ui = {
       guideIdx: 0,
-      modal(id, show) {
-        const el = $(id);
-        if (el) el.classList.toggle('show', !!show);
-      },
+      modal(id, show) { const el = $(id); if (el) el.classList.toggle('show', !!show); },
       theme(dark) {
         document.body.classList.toggle('dark-mode', !!dark);
         $('btn-theme-l').classList.toggle('active', !dark);
@@ -1145,7 +1096,6 @@
       updateGuide() {
         $('guide-track').style.transform = `translateX(-${this.guideIdx * 100}%)`;
         $('guide-page').textContent = `${this.guideIdx + 1} / 3`;
-
         const prevBtn = $('btn-guide-prev');
         const nextBtn = $('btn-guide-next');
         if (prevBtn) prevBtn.disabled = (this.guideIdx === 0);
@@ -1168,23 +1118,16 @@
         $('screen-over').classList.add('hide');
         $('screen-title').classList.remove('hide');
       },
-
       openInventory() {
-        if (game.active) {
-          clearInterval(game.hpTimer);
-        }
+        if (game.active && !game.isFever) clearInterval(game.hpTimer);
         playTone([[520, 0], [680, 0.06]], 'triangle', 0.12, 0.15);
-
         const listEl = $('inventory-card-list');
         listEl.innerHTML = '';
-
         const acquiredKeys = Object.keys(game.acquiredUpgrades);
-
         if (acquiredKeys.length === 0) {
           listEl.innerHTML = `
             <div style="padding: 24px 10px; text-align: center; color: #888; font-weight: 800; font-size: 0.9rem; line-height: 1.6;">
-              아직 획득한 특성이 없습니다.<br>
-              스테이지를 클리어하여 강력한 능력을 얻어보세요!
+              아직 획득한 특성이 없습니다.<br>스테이지를 클리어하여 강력한 능력을 얻어보세요!
             </div>
           `;
         } else {
@@ -1208,13 +1151,11 @@
             listEl.appendChild(card);
           });
         }
-
         this.modal('modal-inventory', 1);
       },
-
       closeInventory() {
         this.modal('modal-inventory', 0);
-        if (game.active) {
+        if (game.active && !game.isFever) {
           clearInterval(game.hpTimer);
           game.hpTimer = setInterval(() => game.updateHp(-1), game.drainIntervalMs);
         }
@@ -1224,12 +1165,10 @@
     function getAppleFromPoint(x, y) {
       const el = document.elementFromPoint(x, y)?.closest('.apple');
       if (el && !el.classList.contains('cleared')) return el;
-
       const board = $('board');
       if (!board) return null;
       const bRect = board.getBoundingClientRect();
       if (x < bRect.left - 25 || x > bRect.right + 25 || y < bRect.top - 25 || y > bRect.bottom + 25) return null;
-
       const cellW = bRect.width / game.cols;
       const cellH = bRect.height / game.rows;
       const c = Math.max(0, Math.min(game.cols - 1, Math.floor((x - bRect.left) / cellW)));
@@ -1253,7 +1192,6 @@
       hasEmergencyShield: false,
       shieldUsedThisStage: false,
       drainIntervalMs: 1000,
-
       acquiredUpgrades: {},
 
       combo: 0,
@@ -1261,6 +1199,13 @@
       currentComboMaxTime: 7.5,
       comboTimeRemaining: 0,
       comboTimer: null,
+
+      // 피버 게이지 시스템 (10 콤보 달성 시 100%)
+      feverGauge: 0,
+      maxFeverCombo: 10,
+      isFever: false,
+      feverTimer: null,
+      feverTimeRemaining: 0,
 
       hpTimer: null, hintTimer: null, transitionTimer: null,
       active: false, isTransitioning: false, drag: false, dragStart: null, currentSelection: null, highlighted: [],
@@ -1285,12 +1230,8 @@
           requestForcedLandscape();
         } else {
           document.body.classList.remove('mobile-mode');
-          if (document.fullscreenElement && document.exitFullscreen) {
-            document.exitFullscreen().catch(() => {});
-          }
-          if (screen.orientation && screen.orientation.unlock) {
-            try { screen.orientation.unlock(); } catch (e) {}
-          }
+          if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+          if (screen.orientation && screen.orientation.unlock) { try { screen.orientation.unlock(); } catch (e) {} }
         }
 
         const availableHeight = window.innerHeight || document.documentElement.clientHeight;
@@ -1304,7 +1245,6 @@
 
         $('btn-ratio-pc').classList.toggle('active', mode === 'pc');
         $('btn-ratio-mobile').classList.toggle('active', mode === 'mobile');
-
         playTone([[480, 0]], 'triangle', 0.08, 0.15);
         this.renderBoard();
       },
@@ -1316,9 +1256,7 @@
         ui.modal('modal-upgrade', 0);
         ui.modal('modal-inventory', 0);
 
-        if (this.currentMode === 'mobile') {
-          requestForcedLandscape();
-        }
+        if (this.currentMode === 'mobile') requestForcedLandscape();
 
         if (isFirstStart) {
           this.score = 0;
@@ -1339,13 +1277,14 @@
         this.shieldUsedThisStage = false;
         this.combo = 0;
         this.active = false;
+        this.endFeverMode();
 
         this.updateHeaderUI();
+        this.updateFeverUI();
         this.updateHp(0);
         this.renderBoard();
 
         if (showGuide) {
-          // 게임 시작 전 타이머 소모 없이 가이드 모달을 자유롭게 열람
           ui.guideIdx = 0;
           ui.updateGuide();
           ui.modal('modal-guide', 1);
@@ -1373,6 +1312,7 @@
         this.isTransitioning = false;
         this.drag = false;
         this.dragStart = null;
+        this.endFeverMode();
         clearTimeout(this.transitionTimer);
         clearInterval(this.hpTimer);
         clearTimeout(this.hintTimer);
@@ -1384,24 +1324,40 @@
       updateHeaderUI() {
         $('stage-badge').textContent = `STAGE ${this.stage}`;
         $('score-text').textContent = this.score;
-
         const pct = Math.min(100, Math.floor((this.score / this.targetScore) * 100));
         $('target-progress-fill').style.width = `${pct}%`;
         $('target-progress-pct').textContent = `${pct}% (${this.score} / ${this.targetScore}점)`;
         $('target-stage-label').textContent = `STAGE ${this.stage} 목표 달성도`;
       },
 
+      // 피버 게이지 바 UI 갱신
+      updateFeverUI() {
+        const fillEl = $('fever-gauge-fill');
+        const pctText = $('fever-pct-text');
+        const titleText = $('fever-title-text');
+
+        if (this.isFever) {
+          const feverPct = Math.max(0, (this.feverTimeRemaining / 5.0) * 100);
+          fillEl.style.width = `${feverPct}%`;
+          pctText.textContent = `FEVER: ${Math.max(0, this.feverTimeRemaining).toFixed(1)}초`;
+          titleText.textContent = '🔥 FEVER ACTIVE!';
+        } else {
+          fillEl.style.width = `${this.feverGauge}%`;
+          pctText.textContent = `${this.combo} / ${this.maxFeverCombo} COMBO (${Math.round(this.feverGauge)}%)`;
+          titleText.textContent = '🔥 FEVER GAUGE';
+        }
+      },
+
       checkStageProgress() {
         if (this.score >= this.targetScore) {
           this.active = false;
+          this.endFeverMode();
           clearInterval(this.hpTimer);
           clearTimeout(this.hintTimer);
           this.resetCombo();
           this.clearEffects();
 
-          if (this.stageClearBonus > 0) {
-            this.score += this.stageClearBonus;
-          }
+          if (this.stageClearBonus > 0) this.score += this.stageClearBonus;
 
           const clearedStage = this.stage;
           this.stage++;
@@ -1423,7 +1379,6 @@
       openUpgradeModal() {
         const listEl = $('upgrade-card-list');
         listEl.innerHTML = '';
-
         const shuffled = [...UPGRADE_POOL].sort(() => 0.5 - Math.random());
         const selectedThree = shuffled.slice(0, 3);
 
@@ -1453,9 +1408,7 @@
 
             setTimeout(() => {
               ui.modal('modal-upgrade', 0);
-              setTimeout(() => {
-                this.start(false);
-              }, 700);
+              setTimeout(() => { this.start(false); }, 700);
             }, 280);
           });
           listEl.appendChild(card);
@@ -1469,7 +1422,6 @@
         const overlay = $('stage-transition-overlay');
         const textEl = $('stage-transition-text');
         overlay.classList.add('show');
-
         let index = 0;
 
         const nextStep = () => {
@@ -1519,20 +1471,78 @@
             el.dataset.r = r;
             el.dataset.c = c;
             $('board').appendChild(el);
-            return { val, el, cleared: false };
+            return { val, el, cleared: false, r, c };
           })
         );
       },
 
+      scheduleAppleRespawn(cell, delay = 800) {
+        setTimeout(() => {
+          if (!this.active || !cell.cleared) return;
+          cell.val = Math.floor(Math.random() * 9) + 1;
+          cell.el.textContent = cell.val;
+          cell.cleared = false;
+          cell.el.classList.remove('cleared', 'exploding', 'match-valid', 'hint-target');
+          cell.el.classList.add('respawning');
+          playPopSound();
+
+          setTimeout(() => {
+            cell.el.classList.remove('respawning');
+          }, 380);
+        }, delay);
+      },
+
+      // 10 콤보 도달 시 블레이드 피버 타임 진입 (5초 지속)
+      startFeverMode() {
+        if (this.isFever) return;
+        this.isFever = true;
+        this.feverTimeRemaining = 5.0;
+
+        const container = $('game-container');
+        container.classList.add('fever-mode');
+        $('combo-title').textContent = '🔥FEVER!';
+        $('combo-title').style.color = '#ff1744';
+
+        playTone([[523, 0], [659, 0.06], [784, 0.12], [1046, 0.18], [1318, 0.24]], 'triangle', 0.45, 0.25);
+        this.clearEffects();
+        this.updateFeverUI();
+
+        clearInterval(this.comboTimer);
+        clearInterval(this.feverTimer);
+
+        this.feverTimer = setInterval(() => {
+          this.feverTimeRemaining -= 0.1;
+          this.updateFeverUI();
+
+          const pct = Math.max(0, (this.feverTimeRemaining / 5.0) * 100);
+          $('combo-progress-bar').style.width = `${pct}%`;
+          $('combo-timer-text').textContent = `${Math.max(0, this.feverTimeRemaining).toFixed(1)}초`;
+
+          if (this.feverTimeRemaining <= 0) {
+            this.endFeverMode();
+          }
+        }, 100);
+      },
+
+      endFeverMode() {
+        if (!this.isFever) return;
+        this.isFever = false;
+        clearInterval(this.feverTimer);
+        $('game-container').classList.remove('fever-mode');
+        $('combo-title').textContent = 'COMBO';
+        $('combo-title').style.color = '#ff9800';
+        this.feverGauge = 0;
+        this.resetCombo();
+        this.updateFeverUI();
+      },
+
       updateHp(delta) {
         this.hp = Math.max(0, Math.min(this.maxHp, this.hp + delta));
-        
         if (this.hasEmergencyShield && !this.shieldUsedThisStage && this.hp <= 25 && this.hp > 0 && delta < 0) {
           this.shieldUsedThisStage = true;
           this.hp = Math.min(this.maxHp, this.hp + 35);
           playTone([[440, 0], [660, 0.08], [880, 0.16]], 'triangle', 0.4, 0.25);
         }
-
         $('hp-text').textContent = `${this.hp}/${this.maxHp}`;
         const pct = (this.hp / this.maxHp) * 100;
         $('hp-fill').style.width = `${pct}%`;
@@ -1549,15 +1559,19 @@
       },
 
       resetCombo() {
+        if (this.isFever) return;
         this.combo = 0;
         this.comboTimeRemaining = 0;
+        this.feverGauge = 0;
         clearInterval(this.comboTimer);
         this.comboTimer = null;
         $('combo-widget').classList.remove('active');
         $('combo-progress-bar').style.width = '0%';
+        this.updateFeverUI();
       },
 
       updateComboTimerUI() {
+        if (this.isFever) return;
         const remaining = Math.max(0, this.comboTimeRemaining);
         $('combo-timer-text').textContent = `${remaining.toFixed(1)}초`;
         const pct = Math.max(0, (remaining / this.currentComboMaxTime) * 100);
@@ -1566,6 +1580,17 @@
 
       addCombo() {
         this.combo++;
+        
+        // 10 콤보 도달 시 피버 게이지 100% -> 피버 모드 즉시 발동
+        if (!this.isFever) {
+          this.feverGauge = Math.min(100, (this.combo / this.maxFeverCombo) * 100);
+          this.updateFeverUI();
+          if (this.combo >= this.maxFeverCombo) {
+            this.startFeverMode();
+            return;
+          }
+        }
+
         const duration = this.getComboDuration(this.combo);
         this.currentComboMaxTime = duration;
         this.comboTimeRemaining = duration;
@@ -1594,10 +1619,11 @@
         clearTimeout(this.hintTimer);
         $('hint-box').style.display = 'none';
         this.grid.flat().forEach(c => c.el.classList.remove('hint-target'));
-        if (this.active) this.hintTimer = setTimeout(() => this.showHint(), this.hintDelay);
+        if (this.active && !this.isFever) this.hintTimer = setTimeout(() => this.showHint(), this.hintDelay);
       },
 
       showHint() {
+        if (this.isFever) return;
         const match = this.findMatch();
         if (!match) return;
         const [r1, c1, r2, c2, diag] = match;
@@ -1658,19 +1684,21 @@
     window.addEventListener('pointerdown', e => {
       const apple = getAppleFromPoint(e.clientX, e.clientY);
       if (!game.active || !apple || e.target.closest('.overlay') || e.target.closest('.stage-transition-overlay')) return;
+
       game.resetHint();
       game.drag = true;
       game.dragStart = { r: +apple.dataset.r, c: +apple.dataset.c };
       updateDrag(e);
     });
 
-    window.addEventListener('pointermove', e => { if (game.drag && game.active) updateDrag(e); });
+    window.addEventListener('pointermove', e => {
+      if (game.drag && game.active) updateDrag(e);
+    });
 
     window.addEventListener('pointerup', e => {
       if (!game.drag || !game.active) return;
-      if (e && e.clientX !== undefined && e.clientY !== undefined) {
-        updateDrag(e);
-      }
+      if (e && e.clientX !== undefined && e.clientY !== undefined) updateDrag(e);
+
       game.drag = false;
       game.dragStart = null;
       const sel = game.currentSelection;
@@ -1683,7 +1711,10 @@
         height: parseFloat(box.style.height) || 0
       };
 
-      if (sel && sel.valid) {
+      // 피버 모드일 때는 합과 상관없이 1개 이상의 드래그 영역이면 무조건 참격 폭발!
+      const canClear = sel && ((game.isFever && sel.count > 0) || sel.valid);
+
+      if (canClear) {
         triggerRedPixelSlash(curBoxRect, sel.isDiag, sel.sRect, sel.eRect, sel.r1, sel.c1, sel.r2, sel.c2);
 
         sel.cells.forEach(c => {
@@ -1694,29 +1725,30 @@
             c.el.classList.add('cleared');
             c.el.classList.remove('exploding');
           }, 270);
+
+          game.scheduleAppleRespawn(c, game.isFever ? 600 : 800);
         });
 
         const comboBonus = game.combo * game.comboMultiplier;
         const upgradeBonus = sel.cells.length * game.bonusScorePerApple;
-        const gainedScore = sel.cells.length + comboBonus + upgradeBonus;
+        const feverBonus = game.isFever ? (sel.cells.length * 2) : 0;
+        const gainedScore = sel.cells.length + comboBonus + upgradeBonus + feverBonus;
         game.score += gainedScore;
         game.updateHeaderUI();
 
         showFloatingScore(curBoxRect, gainedScore);
-        game.addCombo();
-        playTone([[523, 0], [659, 0.05], [880, 0.1]]);
-
-        game.checkStageProgress();
-
-        if (game.active && !game.findMatch()) {
-          setTimeout(() => {
-            if (game.active) {
-              game.renderBoard();
-              game.resetHint();
-            }
-          }, 350);
+        
+        if (!game.isFever) {
+          game.addCombo();
+        } else {
+          // 피버 중에도 콤보 카운트 증가
+          game.combo += 1;
+          $('combo-count').textContent = game.combo;
         }
-      } else if (sel && sel.count > 0) {
+
+        playTone([[523, 0], [659, 0.05], [880, 0.1]]);
+        game.checkStageProgress();
+      } else if (sel && sel.count > 0 && !game.isFever) {
         game.resetCombo();
         $('game-container').classList.remove('shake');
         void $('game-container').offsetWidth;
@@ -1730,6 +1762,7 @@
       game.currentSelection = null;
     });
 
+    // 드래그 영역 계산 (피버 모드 드래그 지원)
     function updateDrag(e) {
       if (!game.dragStart) return;
       const el = getAppleFromPoint(e.clientX, e.clientY);
@@ -1753,18 +1786,25 @@
       let isDiagMatch = false;
       let selectedCells = unclearedRect;
 
-      if (rectSum === 10 && unclearedRect.length > 0) {
+      // [피버 모드]: 합 10 계산 없이 드래그한 모든 사과가 유효한 참격 대상으로 변환
+      if (game.isFever) {
         valid = true;
-        isDiagMatch = false;
-        selectedCells = unclearedRect;
-      } else if (isPureDiag && diagSum === 10 && unclearedDiag.length > 0) {
-        valid = true;
-        isDiagMatch = true;
-        selectedCells = unclearedDiag;
-      } else {
-        valid = false;
-        isDiagMatch = false;
+        isDiagMatch = isPureDiag;
         selectedCells = isPureDiag ? unclearedDiag : unclearedRect;
+      } else {
+        if (rectSum === 10 && unclearedRect.length > 0) {
+          valid = true;
+          isDiagMatch = false;
+          selectedCells = unclearedRect;
+        } else if (isPureDiag && diagSum === 10 && unclearedDiag.length > 0) {
+          valid = true;
+          isDiagMatch = true;
+          selectedCells = unclearedDiag;
+        } else {
+          valid = false;
+          isDiagMatch = false;
+          selectedCells = isPureDiag ? unclearedDiag : unclearedRect;
+        }
       }
 
       const currentEls = selectedCells.map(c => c.el);
@@ -1791,7 +1831,12 @@
       box.style.left = `${Math.min(sRect.left, eRect.left) - bRect.left - 2}px`;
       box.style.width = `${Math.max(sRect.right, eRect.right) - Math.min(sRect.left, eRect.left) + 4}px`;
       box.style.height = `${boxHeight}px`;
-      box.className = `selection-box ${valid ? (isDiagMatch ? 'diag-matched' : 'valid') : ''}`;
+      
+      if (game.isFever) {
+        box.className = `selection-box fever-drag ${isDiagMatch ? 'diag-matched' : ''}`;
+      } else {
+        box.className = `selection-box ${valid ? (isDiagMatch ? 'diag-matched' : 'valid') : ''}`;
+      }
 
       const indicator = $('sum-indicator');
       if (boxTop + boxHeight + 34 > bRect.height) {
@@ -1817,7 +1862,9 @@
         $('board-svg').innerHTML = '';
       }
 
-      if (valid) {
+      if (game.isFever) {
+        indicator.textContent = `🔥 FEVER 참격! (${selectedCells.length}개)`;
+      } else if (valid) {
         indicator.textContent = isDiagMatch ? '대각 합: 10' : '합: 10';
       } else {
         indicator.textContent = isPureDiag ? `합: ${rectSum} (대각: ${diagSum})` : `합: ${rectSum}`;
