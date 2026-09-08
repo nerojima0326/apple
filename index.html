@@ -236,10 +236,7 @@
     body.dark-mode .upgrade-stat-highlight { color: #ff5252; }
 
     .upgrade-stacked-tag {
-      color: #ff1744 !important;
-      font-weight: 900 !important;
-      margin-left: 5px;
-      display: inline-block;
+      color: #ff1744 !important; font-weight: 900 !important; margin-left: 5px; display: inline-block;
     }
 
     .inventory-card {
@@ -344,12 +341,9 @@
     .fever-gauge-fill {
       width: 0%; height: 100%;
       background: linear-gradient(90deg, #ff9800, #ff1744, #ffd600);
-      background-size: 200% 100%;
-      transition: width 0.2s linear;
+      background-size: 200% 100%; transition: width 0.2s linear;
     }
-    .game-container.fever-mode .fever-gauge-fill {
-      animation: gradientSlide 0.8s linear infinite;
-    }
+    .game-container.fever-mode .fever-gauge-fill { animation: gradientSlide 0.8s linear infinite; }
     
     .board-wrapper {
       position: relative; background: var(--sub-bg); padding: 10px; border-radius: 12px;
@@ -357,7 +351,9 @@
     }
     .board { display: grid; gap: var(--apple-gap); touch-action: none; }
 
-    /* 픽셀 사과 */
+    /* =========================================================
+       [2D 픽셀 아트 사과 스타일: 일반 / 황금 / 폭탄]
+       ========================================================= */
     .apple {
       width: var(--apple-size); height: var(--apple-size); background: var(--apple-red); display: flex;
       align-items: center; justify-content: center; color: #fff; font-size: 1.05rem; font-weight: 900;
@@ -377,6 +373,48 @@
       z-index: 2; pointer-events: none;
     }
     .apple.cleared { visibility: hidden; pointer-events: none; }
+
+    /* [신규: 2D 픽셀 황금사과 디자인] */
+    .apple.gold-apple {
+      background: #ffd600 !important;
+      color: #3e2723 !important;
+      box-shadow: 0 -3px 0 0 var(--border), 0 3px 0 0 var(--border), -3px 0 0 0 var(--border), 3px 0 0 0 var(--border),
+                  inset -3px -3px 0 0 #ff8f00, inset 3px 3px 0 0 #fff9c4,
+                  0 0 10px rgba(255, 214, 0, 0.75) !important;
+      animation: goldAppleGlow 1.2s ease-in-out infinite alternate;
+    }
+    .apple.gold-apple::after {
+      background: #00e676 !important;
+      box-shadow: 0 -2px 0 0 var(--border), 2px 0 0 0 var(--border), 0 2px 0 0 var(--border), 0 0 4px #00e676 !important;
+    }
+    @keyframes goldAppleGlow {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.22); }
+    }
+
+    /* [신규: 2D 픽셀 폭탄사과 디자인] */
+    .apple.bomb-apple {
+      background: #263238 !important;
+      color: #fff !important;
+      box-shadow: 0 -3px 0 0 var(--border), 0 3px 0 0 var(--border), -3px 0 0 0 var(--border), 3px 0 0 0 var(--border),
+                  inset -3px -3px 0 0 #102027, inset 3px 3px 0 0 #607d8b !important;
+    }
+    .apple.bomb-apple::before {
+      background: #ffab00 !important; /* 타오르는 도화선 심지 */
+      box-shadow: -2px 0 0 0 var(--border), 2px 0 0 0 var(--border), 0 -2px 0 0 #ff1744, 0 0 6px #ff5722 !important;
+      animation: fuseFlicker 0.25s steps(2) infinite alternate;
+    }
+    .apple.bomb-apple::after { display: none; }
+    @keyframes fuseFlicker {
+      0% { background: #ffd600 !important; }
+      100% { background: #ff1744 !important; }
+    }
+    .bomb-timer-tag {
+      position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+      background: #d50000; color: #fff; font-size: 0.65rem; font-weight: 900;
+      padding: 1px 4px; border-radius: 3px; border: 1px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.6); pointer-events: none; z-index: 5;
+    }
 
     .apple.respawning {
       visibility: visible !important;
@@ -616,7 +654,7 @@
 </head>
 <body>
 
-  <!-- 세로 모드 감지 시 가로 전환 강제 유도 레이어 -->
+  <!-- 세로 모드 감지 시 가로 전환 안내 레이어 -->
   <div class="rotate-device-overlay" id="rotate-device-overlay">
     <div class="rotate-phone-icon">📱</div>
     <div class="rotate-text">기기를 가로로 회전해주세요!</div>
@@ -683,17 +721,15 @@
           </div>
           
           <div class="guide-slide">
-            <b>2. 대각선 드래그 (4개 연결)</b>
-            <p style="font-size: .85rem; color: #666; margin: 6px 0 10px 0;">사선 방향으로 연결된 4개의 사과도 합이 10이면 터뜨릴 수 있습니다.</p>
+            <b>2. 황금사과 & 폭탄사과 기믹</b>
+            <p style="font-size: .85rem; color: #666; text-align: left; margin: 6px 0 10px 0; line-height: 1.5;">
+              • <strong>✨ 황금사과:</strong> 2칸 이내라면 합 계산 없이 무조건 참격 성공! (+15점)<br>
+              • <strong>💣 폭탄사과:</strong> 8초 내 합 10으로 터뜨리면 3x3 범위가 연쇄 폭발하며 +50점! (초과 시 폭발하여 HP -20 감소)
+            </p>
             <div class="mini-demo-wrapper">
-              <div class="mini-board" style="grid-template-columns: repeat(4, 24px); grid-template-rows: repeat(4, 24px);">
-                <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6;">
-                  <line x1="20" y1="20" x2="110" y2="110" stroke="#ffd600" stroke-width="4" stroke-linecap="square" />
-                </svg>
-                <div class="mini-apple demo-highlight">1</div><div class="mini-apple">8</div><div class="mini-apple">5</div><div class="mini-apple">2</div>
-                <div class="mini-apple">9</div><div class="mini-apple demo-highlight">2</div><div class="mini-apple">7</div><div class="mini-apple">6</div>
-                <div class="mini-apple">4</div><div class="mini-apple">1</div><div class="mini-apple demo-highlight">3</div><div class="mini-apple">5</div>
-                <div class="mini-apple">7</div><div class="mini-apple">3</div><div class="mini-apple">9</div><div class="mini-apple demo-highlight">4</div>
+              <div class="mini-board" style="grid-template-columns: repeat(3, 28px); grid-template-rows: repeat(2, 28px);">
+                <div class="mini-apple" style="background:#ffd600; color:#3e2723;">✨</div><div class="mini-apple">8</div><div class="mini-apple">2</div>
+                <div class="mini-apple" style="background:#263238; color:#fff;">💣</div><div class="mini-apple">5</div><div class="mini-apple">5</div>
               </div>
             </div>
           </div>
@@ -701,13 +737,12 @@
           <div class="guide-slide">
             <b>3. 10콤보 피버 & 드래그 참격</b>
             <p style="font-size: .85rem; color: #666; text-align: left; margin: 8px 0 14px 0; line-height: 1.6;">
-              • <strong>🔥 블레이드 피버 타임:</strong> 10콤보를 달성해 게이지를 100% 채우면 피버가 발동합니다!<br>
-              • <strong>⚔️ 피버 드래그:</strong> 피버 중에는 원하는 사각형/직선 영역을 드래그하여 <strong>숫자 합 상관없이 한 번에 전부 베어버립니다!</strong><br>
-              • <strong>🍎 무한 재생성:</strong> 제거된 사과는 잠시 후 새 숫자로 퐁퐁 자라납니다.
+              • <strong>🔥 블레이드 피버 타임:</strong> 10콤보 달성 시 피버 돌입! 드래그한 영역을 합 상관없이 싹쓸이!<br>
+              • <strong>🍎 3초 재생성:</strong> 제거된 사과는 정확히 3초 뒤 새 숫자로 퐁퐁 자라납니다.
             </p>
             <div class="mini-demo-wrapper">
               <div class="mini-board" style="padding: 8px 20px; font-weight: 900; font-size: 0.9rem; color: var(--apple-red); letter-spacing: 1.5px;">
-                🔥 FEVER DRAG & SLICE!
+                🔥 GOLD & BOMB & FEVER!
               </div>
             </div>
           </div>
@@ -923,6 +958,19 @@
       osc.start(); osc.stop(ctx.currentTime + 0.08);
     }
 
+    function playBombExplosionSound() {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(160, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(35, ctx.currentTime + 0.45);
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.45);
+    }
+
     async function requestForcedLandscape() {
       try {
         if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
@@ -934,18 +982,18 @@
       } catch (err) {}
     }
 
-    function spawnAppleParticles(el) {
+    function spawnAppleParticles(el, overrideColors = null) {
       const bRect = $('board-wrapper').getBoundingClientRect();
       const aRect = el.getBoundingClientRect();
       const centerX = aRect.left - bRect.left + aRect.width / 2;
       const centerY = aRect.top - bRect.top + aRect.height / 2;
-      const colors = ['#e53935', '#ff8a80', '#ffd600', '#ffffff', '#ff1744'];
-      for (let i = 0; i < 6; i++) {
+      const colors = overrideColors || ['#e53935', '#ff8a80', '#ffd600', '#ffffff', '#ff1744'];
+      for (let i = 0; i < 7; i++) {
         const p = document.createElement('div');
         p.className = 'pixel-particle';
         p.style.background = colors[Math.floor(Math.random() * colors.length)];
         const angle = Math.random() * Math.PI * 2;
-        const dist = 18 + Math.random() * 24;
+        const dist = 18 + Math.random() * 26;
         p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
         p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
         p.style.left = `${centerX - 3}px`;
@@ -965,10 +1013,10 @@
       setTimeout(() => el.remove(), 650);
     }
 
-    function showFloatingMiss(rect) {
+    function showFloatingMiss(rect, text = 'MISS!') {
       const el = document.createElement('div');
       el.className = 'damage-float';
-      el.textContent = 'MISS!';
+      el.textContent = text;
       el.style.left = `${rect.left + rect.width / 2}px`;
       el.style.top = `${rect.top}px`;
       $('board-wrapper').appendChild(el);
@@ -1050,166 +1098,16 @@
     function getStackedStatText(id, level) {
       if (level <= 1) return '';
       switch (id) {
-        case 'fast_hint':
-          return `(총 -${(level * 1.5).toFixed(1)}초)`;
-        case 'max_hp':
-          return `(총 최대 HP +${level * 30})`;
-        case 'combo_time':
-          return `(총 +${(level * 2.0).toFixed(1)}초)`;
-        case 'bonus_score':
-          return `(총 개당 +${level * 2}점)`;
-        case 'slow_drain':
-          return `(총 ${Math.round((Math.pow(1.3, level) - 1) * 100)}% 둔화)`;
-        case 'fever_strike':
-          return `(총 콤보당 +${2 + level * 2}점)`;
-        case 'emergency_heal':
-          return `(총 +${35 * level} HP 회복)`;
-        case 'apple_harvest':
-          return `(총 스테이지당 +${level * 25}점)`;
-        default:
-          return `(Lv.${level} 합산 적용)`;
+        case 'fast_hint': return `(총 -${(level * 1.5).toFixed(1)}초)`;
+        case 'max_hp': return `(총 최대 HP +${level * 30})`;
+        case 'combo_time': return `(총 +${(level * 2.0).toFixed(1)}초)`;
+        case 'bonus_score': return `(총 개당 +${level * 2}점)`;
+        case 'slow_drain': return `(총 ${Math.round((Math.pow(1.3, level) - 1) * 100)}% 둔화)`;
+        case 'fever_strike': return `(총 콤보당 +${2 + level * 2}점)`;
+        case 'emergency_heal': return `(총 +${35 * level} HP 회복)`;
+        case 'apple_harvest': return `(총 스테이지당 +${level * 25}점)`;
+        default: return `(Lv.${level} 합산 적용)`;
       }
-    }
-
-    const UPGRADE_POOL = [
-      {
-        id: 'fast_hint', icon: '💡', tag: '보조', tagClass: 'tag-utility',
-        name: '빠른 통찰 (천리안)', desc: '힌트 대기시간 <span class="upgrade-stat-highlight">-1.5초</span> 단축',
-        apply: () => { game.hintDelay = Math.max(1500, game.hintDelay - 1500); }
-      },
-      {
-        id: 'max_hp', icon: '💖', tag: '생존', tagClass: 'tag-survival',
-        name: '생명력 각성 (체력 증강)', desc: '최대 HP <span class="upgrade-stat-highlight">+30</span> 증가 & 체력 <span class="upgrade-stat-highlight">+50 HP</span> 회복',
-        apply: () => { game.maxHp += 30; game.updateHp(50); }
-      },
-      {
-        id: 'combo_time', icon: '⚡', tag: '콤보', tagClass: 'tag-combo',
-        name: '콤보 마스터 (시간 연장)', desc: '모든 단계 콤보 제한시간 기본 <span class="upgrade-stat-highlight">+2.0초</span> 연장',
-        apply: () => { game.comboBonus += 2.0; }
-      },
-      {
-        id: 'bonus_score', icon: '🍎', tag: '점수', tagClass: 'tag-score',
-        name: '풍요의 수확 (열매 가치)', desc: '사과 매칭 시 개당 <span class="upgrade-stat-highlight">+2점</span> 추가 보너스 점수',
-        apply: () => { game.bonusScorePerApple += 2; }
-      },
-      {
-        id: 'slow_drain', icon: '⏳', tag: '생존', tagClass: 'tag-survival',
-        name: '여유로운 시간 (소모 완화)', desc: '초당 HP 자연 감소 속도 <span class="upgrade-stat-highlight">30% 둔화</span>',
-        apply: () => { game.drainIntervalMs = Math.floor(game.drainIntervalMs * 1.3); }
-      },
-      {
-        id: 'fever_strike', icon: '🔥', tag: '콤보', tagClass: 'tag-combo',
-        name: '피버 스트라이크 (콤보 폭발)', desc: '콤보 보너스 배율 <span class="upgrade-stat-highlight">2배 증가</span> (콤보당 점수 2점 → 4점)',
-        apply: () => { game.comboMultiplier += 2; }
-      },
-      {
-        id: 'emergency_heal', icon: '🛡️', tag: '생존', tagClass: 'tag-survival',
-        name: '긴급 소생 실드 (불사조)', desc: 'HP가 25 이하로 떨어지면 즉시 <span class="upgrade-stat-highlight">+35 HP</span> 회복 (스테이지당 1회)',
-        apply: () => { game.hasEmergencyShield = true; }
-      },
-      {
-        id: 'apple_harvest', icon: '✨', tag: '점수', tagClass: 'tag-score',
-        name: '황금빛 결실 (클리어 보너스)', desc: '스테이지 통과 시마다 즉시 <span class="upgrade-stat-highlight">+25점</span> 보너스 지급',
-        apply: () => { game.stageClearBonus += 25; }
-      }
-    ];
-
-    const ui = {
-      guideIdx: 0,
-      modal(id, show) { const el = $(id); if (el) el.classList.toggle('show', !!show); },
-      theme(dark) {
-        document.body.classList.toggle('dark-mode', !!dark);
-        $('btn-theme-l').classList.toggle('active', !dark);
-        $('btn-theme-d').classList.toggle('active', !!dark);
-        playTone([[500, 0]], 'triangle', 0.08, 0.12);
-      },
-      updateGuide() {
-        $('guide-track').style.transform = `translateX(-${this.guideIdx * 100}%)`;
-        $('guide-page').textContent = `${this.guideIdx + 1} / 3`;
-        const prevBtn = $('btn-guide-prev');
-        const nextBtn = $('btn-guide-next');
-        if (prevBtn) prevBtn.disabled = (this.guideIdx === 0);
-        if (nextBtn) nextBtn.disabled = (this.guideIdx === 2);
-      },
-      moveGuide(dir) {
-        this.guideIdx = Math.max(0, Math.min(2, this.guideIdx + dir));
-        this.updateGuide();
-      },
-      finishGuideAndStart() {
-        this.modal('modal-guide', 0);
-        game.runCountdownAndPlay();
-      },
-      toMain() {
-        game.stop();
-        $('stage-transition-overlay').classList.remove('show');
-        this.modal('modal-upgrade', 0);
-        this.modal('modal-inventory', 0);
-        this.modal('modal-guide', 0);
-        $('screen-over').classList.add('hide');
-        $('screen-title').classList.remove('hide');
-      },
-
-      openInventory() {
-        if (game.active && !game.isFever) clearInterval(game.hpTimer);
-        playTone([[520, 0], [680, 0.06]], 'triangle', 0.12, 0.15);
-        const listEl = $('inventory-card-list');
-        listEl.innerHTML = '';
-        const acquiredKeys = Object.keys(game.acquiredUpgrades);
-        
-        if (acquiredKeys.length === 0) {
-          listEl.innerHTML = `
-            <div style="padding: 24px 10px; text-align: center; color: #888; font-weight: 800; font-size: 0.9rem; line-height: 1.6;">
-              아직 획득한 특성이 없습니다.<br>스테이지를 클리어하여 강력한 능력을 얻어보세요!
-            </div>
-          `;
-        } else {
-          acquiredKeys.forEach(id => {
-            const data = game.acquiredUpgrades[id];
-            const stackedText = getStackedStatText(data.id, data.level);
-            const stackedTagHtml = stackedText ? `<span class="upgrade-stacked-tag">${stackedText}</span>` : '';
-
-            const card = document.createElement('div');
-            card.className = 'inventory-card';
-            card.innerHTML = `
-              <div class="upgrade-icon-box" style="min-width: 40px; height: 40px; font-size: 1.6rem;">${data.icon}</div>
-              <div class="upgrade-content">
-                <div class="upgrade-header-row">
-                  <span class="upgrade-name">${data.name}</span>
-                  <div style="display:flex; align-items:center; gap:4px;">
-                    <span class="inventory-level-badge">Lv.${data.level}</span>
-                    <span class="upgrade-tag ${data.tagClass}">${data.tag}</span>
-                  </div>
-                </div>
-                <div class="upgrade-desc">${data.desc} ${stackedTagHtml}</div>
-              </div>
-            `;
-            listEl.appendChild(card);
-          });
-        }
-        this.modal('modal-inventory', 1);
-      },
-      closeInventory() {
-        this.modal('modal-inventory', 0);
-        if (game.active && !game.isFever) {
-          clearInterval(game.hpTimer);
-          game.hpTimer = setInterval(() => game.updateHp(-1), game.drainIntervalMs);
-        }
-      }
-    };
-
-    function getAppleFromPoint(x, y) {
-      const el = document.elementFromPoint(x, y)?.closest('.apple');
-      if (el && !el.classList.contains('cleared')) return el;
-      const board = $('board');
-      if (!board) return null;
-      const bRect = board.getBoundingClientRect();
-      if (x < bRect.left - 25 || x > bRect.right + 25 || y < bRect.top - 25 || y > bRect.bottom + 25) return null;
-      const cellW = bRect.width / game.cols;
-      const cellH = bRect.height / game.rows;
-      const c = Math.max(0, Math.min(game.cols - 1, Math.floor((x - bRect.left) / cellW)));
-      const r = Math.max(0, Math.min(game.rows - 1, Math.floor((y - bRect.top) / cellH)));
-      const cell = game.grid[r]?.[c];
-      return (cell && !cell.cleared) ? cell.el : null;
     }
 
     const game = {
@@ -1240,6 +1138,9 @@
       isFever: false,
       feverTimer: null,
       feverTimeRemaining: 0,
+
+      // 폭탄 사과 주기 검사 타이머
+      bombTickTimer: null,
 
       hpTimer: null, hintTimer: null, transitionTimer: null,
       active: false, isTransitioning: false, drag: false, dragStart: null, currentSelection: null, highlighted: [],
@@ -1349,6 +1250,7 @@
         this.endFeverMode();
         clearTimeout(this.transitionTimer);
         clearInterval(this.hpTimer);
+        clearInterval(this.bombTickTimer);
         clearTimeout(this.hintTimer);
         this.resetCombo();
         this.clearEffects();
@@ -1386,6 +1288,7 @@
           this.active = false;
           this.endFeverMode();
           clearInterval(this.hpTimer);
+          clearInterval(this.bombTickTimer);
           clearTimeout(this.hintTimer);
           this.resetCombo();
           this.clearEffects();
@@ -1482,12 +1385,42 @@
                 this.active = true;
                 this.resetHint();
                 this.hpTimer = setInterval(() => this.updateHp(-1), this.drainIntervalMs);
+                this.startBombLoop();
               }, 300);
             }
           }
         };
 
         nextStep();
+      },
+
+      // 사과 데이터 생성 (황금 3.5%, 폭탄 2.5% 희귀 확률 적용)
+      createAppleCell(r, c) {
+        const rand = Math.random();
+        let type = 'normal';
+        const activeBombs = this.grid ? this.grid.flat().filter(cell => cell && cell.type === 'bomb' && !cell.cleared).length : 0;
+
+        if (rand < 0.035) {
+          type = 'gold';
+        } else if (rand < 0.060 && activeBombs < 2) {
+          type = 'bomb';
+        }
+
+        const val = Math.floor(Math.random() * 9) + 1;
+        const el = document.createElement('div');
+        el.className = `apple ${type === 'gold' ? 'gold-apple' : type === 'bomb' ? 'bomb-apple' : ''}`;
+        el.textContent = val;
+        el.dataset.r = r;
+        el.dataset.c = c;
+
+        if (type === 'bomb') {
+          const tag = document.createElement('span');
+          tag.className = 'bomb-timer-tag';
+          tag.textContent = '8s';
+          el.appendChild(tag);
+        }
+
+        return { val, el, cleared: false, r, c, type, bombTime: 8.0 };
       },
 
       renderBoard() {
@@ -1497,32 +1430,108 @@
 
         this.grid = Array.from({ length: this.rows }, (_, r) => 
           Array.from({ length: this.cols }, (_, c) => {
-            const val = Math.floor(Math.random() * 9) + 1;
-            const el = document.createElement('div');
-            el.className = 'apple';
-            el.textContent = val;
-            el.dataset.r = r;
-            el.dataset.c = c;
-            $('board').appendChild(el);
-            return { val, el, cleared: false, r, c };
+            const cell = this.createAppleCell(r, c);
+            $('board').appendChild(cell.el);
+            return cell;
           })
         );
       },
 
-      // 사과 등장 간격을 3배로 연장 (기본 2400ms)
-      scheduleAppleRespawn(cell, delay = 2400) {
+      // 폭탄 타이머 관리 루프
+      startBombLoop() {
+        clearInterval(this.bombTickTimer);
+        this.bombTickTimer = setInterval(() => {
+          if (!this.active) return;
+          this.grid.flat().forEach(cell => {
+            if (cell.type === 'bomb' && !cell.cleared) {
+              cell.bombTime -= 0.5;
+              const tag = cell.el.querySelector('.bomb-timer-tag');
+              if (tag) tag.textContent = `${Math.ceil(Math.max(0, cell.bombTime))}s`;
+
+              // 폭탄 타이머 종료 시 오발 폭발
+              if (cell.bombTime <= 0) {
+                this.detonateBomb(cell, false);
+              }
+            }
+          });
+        }, 500);
+      },
+
+      // 폭탄 사과 3x3 범위 폭발 처리
+      detonateBomb(bombCell, isSuccess = true) {
+        if (!bombCell || bombCell.cleared) return;
+        const bRect = $('board-wrapper').getBoundingClientRect();
+        const aRect = bombCell.el.getBoundingClientRect();
+        const boxRect = {
+          left: aRect.left - bRect.left,
+          top: aRect.top - bRect.top,
+          width: aRect.width,
+          height: aRect.height
+        };
+
+        playBombExplosionSound();
+        $('game-container').classList.remove('shake');
+        void $('game-container').offsetWidth;
+        $('game-container').classList.add('shake');
+
+        // 주변 3x3 범위 셀 탐색
+        const affectedCells = [];
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            const nr = bombCell.r + dr, nc = bombCell.c + dc;
+            if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+              const target = this.grid[nr][nc];
+              if (target && !target.cleared) affectedCells.push(target);
+            }
+          }
+        }
+
+        affectedCells.forEach(c => {
+          c.cleared = true;
+          c.el.classList.add('exploding');
+          spawnAppleParticles(c.el, ['#263238', '#ff1744', '#ffab00', '#ffd600']);
+          setTimeout(() => {
+            c.el.classList.add('cleared');
+            c.el.classList.remove('exploding');
+          }, 270);
+          this.scheduleAppleRespawn(c, 3000);
+        });
+
+        if (isSuccess) {
+          // 제한시간 내 맞춘 경우: 대박 점수 획득 (+50점)
+          const bonus = 50 + affectedCells.length * 2;
+          this.score += bonus;
+          this.updateHeaderUI();
+          showFloatingScore(boxRect, bonus);
+          this.checkStageProgress();
+        } else {
+          // 제한시간 초과 실패 폭발: HP -20 패널티
+          this.updateHp(-20);
+          showFloatingMiss(boxRect, 'BOMB! -20 HP');
+        }
+      },
+
+      scheduleAppleRespawn(cell, delay = 3000) {
         setTimeout(() => {
           if (!this.active || !cell.cleared) return;
-          cell.val = Math.floor(Math.random() * 9) + 1;
-          cell.el.textContent = cell.val;
+          const newCell = this.createAppleCell(cell.r, cell.c);
+          cell.val = newCell.val;
+          cell.type = newCell.type;
+          cell.bombTime = newCell.bombTime;
           cell.cleared = false;
-          cell.el.classList.remove('cleared', 'exploding', 'match-valid', 'hint-target');
-          cell.el.classList.add('respawning');
-          playPopSound();
 
-          setTimeout(() => {
-            cell.el.classList.remove('respawning');
-          }, 380);
+          cell.el.className = `apple ${cell.type === 'gold' ? 'gold-apple' : cell.type === 'bomb' ? 'bomb-apple' : ''} respawning`;
+          cell.el.textContent = cell.val;
+
+          if (cell.type === 'bomb') {
+            const tag = document.createElement('span');
+            tag.className = 'bomb-timer-tag';
+            tag.textContent = '8s';
+            cell.el.appendChild(tag);
+          }
+
+          playPopSound();
+          setTimeout(() => cell.el.classList.remove('respawning'), 380);
         }, delay);
       },
 
@@ -1748,23 +1757,34 @@
       if (canClear) {
         triggerRedPixelSlash(curBoxRect, sel.isDiag, sel.sRect, sel.eRect, sel.r1, sel.c1, sel.r2, sel.c2);
 
-        sel.cells.forEach(c => {
-          c.cleared = true;
-          c.el.classList.add('exploding');
-          spawnAppleParticles(c.el);
-          setTimeout(() => {
-            c.el.classList.add('cleared');
-            c.el.classList.remove('exploding');
-          }, 270);
+        // 폭탄사과 포함 매칭 검사
+        const bombCell = sel.cells.find(c => c.type === 'bomb');
+        if (bombCell && !game.isFever) {
+          game.detonateBomb(bombCell, true);
+        }
 
-          // 제거 후 3배 늘어난 2400ms(피버 중 1800ms) 뒤 다시 퐁퐁 자라남
-          game.scheduleAppleRespawn(c, game.isFever ? 1800 : 2400);
+        const isGoldIncluded = sel.cells.some(c => c.type === 'gold');
+
+        sel.cells.forEach(c => {
+          if (!c.cleared) {
+            c.cleared = true;
+            c.el.classList.add('exploding');
+            spawnAppleParticles(c.el, c.type === 'gold' ? ['#ffd600', '#fff9c4', '#ff8f00'] : null);
+            setTimeout(() => {
+              c.el.classList.add('cleared');
+              c.el.classList.remove('exploding');
+            }, 270);
+
+            game.scheduleAppleRespawn(c, 3000);
+          }
         });
 
         const comboBonus = game.combo * game.comboMultiplier;
         const upgradeBonus = sel.cells.length * game.bonusScorePerApple;
         const feverBonus = game.isFever ? (sel.cells.length * 2) : 0;
-        const gainedScore = sel.cells.length + comboBonus + upgradeBonus + feverBonus;
+        const goldBonus = isGoldIncluded ? 15 : 0;
+
+        const gainedScore = sel.cells.length + comboBonus + upgradeBonus + feverBonus + goldBonus;
         game.score += gainedScore;
         game.updateHeaderUI();
 
@@ -1815,13 +1835,26 @@
       let valid = false;
       let isDiagMatch = false;
       let selectedCells = unclearedRect;
+      let isGoldMatch = false;
+
+      // 거리 계산 (황금사과 2칸 이내 판정용)
+      const dist = Math.max(Math.abs(r2 - r1), Math.abs(c2 - c1));
 
       if (game.isFever) {
         valid = true;
         isDiagMatch = isPureDiag;
         selectedCells = isPureDiag ? unclearedDiag : unclearedRect;
       } else {
-        if (rectSum === 10 && unclearedRect.length > 0) {
+        const targetCells = isPureDiag ? unclearedDiag : unclearedRect;
+        const containsGold = targetCells.some(c => c.type === 'gold');
+
+        // [황금사과 기믹]: 2칸 내외 드래그 시 합 10 계산 없이 무조건 유효
+        if (containsGold && dist <= 2 && targetCells.length > 0) {
+          valid = true;
+          isGoldMatch = true;
+          isDiagMatch = isPureDiag;
+          selectedCells = targetCells;
+        } else if (rectSum === 10 && unclearedRect.length > 0) {
           valid = true;
           isDiagMatch = false;
           selectedCells = unclearedRect;
@@ -1832,7 +1865,7 @@
         } else {
           valid = false;
           isDiagMatch = false;
-          selectedCells = isPureDiag ? unclearedDiag : unclearedRect;
+          selectedCells = targetCells;
         }
       }
 
@@ -1893,6 +1926,8 @@
 
       if (game.isFever) {
         indicator.textContent = `🔥 FEVER 참격! (${selectedCells.length}개)`;
+      } else if (isGoldMatch) {
+        indicator.textContent = `✨ 황금 참격!`;
       } else if (valid) {
         indicator.textContent = isDiagMatch ? '대각 합: 10' : '합: 10';
       } else {
