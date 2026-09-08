@@ -20,10 +20,10 @@
       margin: 0; padding: 12px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg); color: var(--text); display: flex; flex-direction: column;
       align-items: center; justify-content: center; min-height: 100vh; min-height: 100dvh;
-      overflow: hidden; transition: background-color .2s, color .2s;
+      overflow: hidden; touch-action: none; transition: background-color .2s, color .2s;
     }
 
-    /* 모바일 세로 파지 시 가로 회전 강제 안내 오버레이 */
+    /* 모바일 세로 파지 시 가로 회전 안내 레이어 */
     .rotate-device-overlay {
       position: fixed; inset: 0; background: rgba(15, 15, 18, 0.95);
       backdrop-filter: blur(6px); z-index: 3500; display: none; flex-direction: column;
@@ -72,7 +72,7 @@
     .btn-theme-choice {
       flex: 1; border: 2px solid transparent; background: transparent; padding: 9px 0;
       font-size: 0.9rem; font-weight: 800; color: #555; border-radius: 8px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 4px;
+      display: flex; align-items: center; justify-content: center; gap: 4px; touch-action: manipulation;
       transition: background-color 0.15s, transform 0.1s, border-color 0.15s, color 0.15s;
     }
     .btn-theme-choice:hover { background: rgba(255, 255, 255, 0.55); }
@@ -351,9 +351,7 @@
     }
     .board { display: grid; gap: var(--apple-gap); touch-action: none; }
 
-    /* =========================================================
-       [2D 픽셀 아트 사과 스타일: 일반 / 황금 / 폭탄]
-       ========================================================= */
+    /* 2D 픽셀 사과 */
     .apple {
       width: var(--apple-size); height: var(--apple-size); background: var(--apple-red); display: flex;
       align-items: center; justify-content: center; color: #fff; font-size: 1.05rem; font-weight: 900;
@@ -374,10 +372,9 @@
     }
     .apple.cleared { visibility: hidden; pointer-events: none; }
 
-    /* [신규: 2D 픽셀 황금사과 디자인] */
+    /* 황금사과 */
     .apple.gold-apple {
-      background: #ffd600 !important;
-      color: #3e2723 !important;
+      background: #ffd600 !important; color: #3e2723 !important;
       box-shadow: 0 -3px 0 0 var(--border), 0 3px 0 0 var(--border), -3px 0 0 0 var(--border), 3px 0 0 0 var(--border),
                   inset -3px -3px 0 0 #ff8f00, inset 3px 3px 0 0 #fff9c4,
                   0 0 10px rgba(255, 214, 0, 0.75) !important;
@@ -387,28 +384,21 @@
       background: #00e676 !important;
       box-shadow: 0 -2px 0 0 var(--border), 2px 0 0 0 var(--border), 0 2px 0 0 var(--border), 0 0 4px #00e676 !important;
     }
-    @keyframes goldAppleGlow {
-      0% { filter: brightness(1); }
-      100% { filter: brightness(1.22); }
-    }
+    @keyframes goldAppleGlow { 0% { filter: brightness(1); } 100% { filter: brightness(1.22); } }
 
-    /* [신규: 2D 픽셀 폭탄사과 디자인] */
+    /* 폭탄사과 */
     .apple.bomb-apple {
-      background: #263238 !important;
-      color: #fff !important;
+      background: #263238 !important; color: #fff !important;
       box-shadow: 0 -3px 0 0 var(--border), 0 3px 0 0 var(--border), -3px 0 0 0 var(--border), 3px 0 0 0 var(--border),
                   inset -3px -3px 0 0 #102027, inset 3px 3px 0 0 #607d8b !important;
     }
     .apple.bomb-apple::before {
-      background: #ffab00 !important; /* 타오르는 도화선 심지 */
+      background: #ffab00 !important;
       box-shadow: -2px 0 0 0 var(--border), 2px 0 0 0 var(--border), 0 -2px 0 0 #ff1744, 0 0 6px #ff5722 !important;
       animation: fuseFlicker 0.25s steps(2) infinite alternate;
     }
     .apple.bomb-apple::after { display: none; }
-    @keyframes fuseFlicker {
-      0% { background: #ffd600 !important; }
-      100% { background: #ff1744 !important; }
-    }
+    @keyframes fuseFlicker { 0% { background: #ffd600 !important; } 100% { background: #ff1744 !important; } }
     .bomb-timer-tag {
       position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
       background: #d50000; color: #fff; font-size: 0.65rem; font-weight: 900;
@@ -738,7 +728,7 @@
             <b>3. 10콤보 피버 & 드래그 참격</b>
             <p style="font-size: .85rem; color: #666; text-align: left; margin: 8px 0 14px 0; line-height: 1.6;">
               • <strong>🔥 블레이드 피버 타임:</strong> 10콤보 달성 시 피버 돌입! 드래그한 영역을 합 상관없이 싹쓸이!<br>
-              • <strong>🍎 3초 재생성:</strong> 제거된 사과는 정확히 3초 뒤 새 숫자로 퐁퐁 자라납니다.
+              • <strong>🍎 3초 재생성:</strong> 제거된 사과는 3초 후 새 숫자로 퐁퐁 자라납니다.
             </p>
             <div class="mini-demo-wrapper">
               <div class="mini-board" style="padding: 8px 20px; font-weight: 900; font-size: 0.9rem; color: var(--apple-red); letter-spacing: 1.5px;">
@@ -910,6 +900,7 @@
   <script>
     const $ = id => document.getElementById(id);
     
+    // 오디오 컨텍스트 안전 초기화
     let audio = null;
     function getAudioContext() {
       if (!audio) {
@@ -1110,6 +1101,146 @@
       }
     }
 
+    const UPGRADE_POOL = [
+      {
+        id: 'fast_hint', icon: '💡', tag: '보조', tagClass: 'tag-utility',
+        name: '빠른 통찰 (천리안)', desc: '힌트 대기시간 <span class="upgrade-stat-highlight">-1.5초</span> 단축',
+        apply: () => { game.hintDelay = Math.max(1500, game.hintDelay - 1500); }
+      },
+      {
+        id: 'max_hp', icon: '💖', tag: '생존', tagClass: 'tag-survival',
+        name: '생명력 각성 (체력 증강)', desc: '최대 HP <span class="upgrade-stat-highlight">+30</span> 증가 & 체력 <span class="upgrade-stat-highlight">+50 HP</span> 회복',
+        apply: () => { game.maxHp += 30; game.updateHp(50); }
+      },
+      {
+        id: 'combo_time', icon: '⚡', tag: '콤보', tagClass: 'tag-combo',
+        name: '콤보 마스터 (시간 연장)', desc: '모든 단계 콤보 제한시간 기본 <span class="upgrade-stat-highlight">+2.0초</span> 연장',
+        apply: () => { game.comboBonus += 2.0; }
+      },
+      {
+        id: 'bonus_score', icon: '🍎', tag: '점수', tagClass: 'tag-score',
+        name: '풍요의 수확 (열매 가치)', desc: '사과 매칭 시 개당 <span class="upgrade-stat-highlight">+2점</span> 추가 보너스 점수',
+        apply: () => { game.bonusScorePerApple += 2; }
+      },
+      {
+        id: 'slow_drain', icon: '⏳', tag: '생존', tagClass: 'tag-survival',
+        name: '여유로운 시간 (소모 완화)', desc: '초당 HP 자연 감소 속도 <span class="upgrade-stat-highlight">30% 둔화</span>',
+        apply: () => { game.drainIntervalMs = Math.floor(game.drainIntervalMs * 1.3); }
+      },
+      {
+        id: 'fever_strike', icon: '🔥', tag: '콤보', tagClass: 'tag-combo',
+        name: '피버 스트라이크 (콤보 폭발)', desc: '콤보 보너스 배율 <span class="upgrade-stat-highlight">2배 증가</span> (콤보당 점수 2점 → 4점)',
+        apply: () => { game.comboMultiplier += 2; }
+      },
+      {
+        id: 'emergency_heal', icon: '🛡️', tag: '생존', tagClass: 'tag-survival',
+        name: '긴급 소생 실드 (불사조)', desc: 'HP가 25 이하로 떨어지면 즉시 <span class="upgrade-stat-highlight">+35 HP</span> 회복 (스테이지당 1회)',
+        apply: () => { game.hasEmergencyShield = true; }
+      },
+      {
+        id: 'apple_harvest', icon: '✨', tag: '점수', tagClass: 'tag-score',
+        name: '황금빛 결실 (클리어 보너스)', desc: '스테이지 통과 시마다 즉시 <span class="upgrade-stat-highlight">+25점</span> 보너스 지급',
+        apply: () => { game.stageClearBonus += 25; }
+      }
+    ];
+
+    const ui = {
+      guideIdx: 0,
+      modal(id, show) { const el = $(id); if (el) el.classList.toggle('show', !!show); },
+      theme(dark) {
+        document.body.classList.toggle('dark-mode', !!dark);
+        $('btn-theme-l').classList.toggle('active', !dark);
+        $('btn-theme-d').classList.toggle('active', !!dark);
+        playTone([[500, 0]], 'triangle', 0.08, 0.12);
+      },
+      updateGuide() {
+        $('guide-track').style.transform = `translateX(-${this.guideIdx * 100}%)`;
+        $('guide-page').textContent = `${this.guideIdx + 1} / 3`;
+        const prevBtn = $('btn-guide-prev');
+        const nextBtn = $('btn-guide-next');
+        if (prevBtn) prevBtn.disabled = (this.guideIdx === 0);
+        if (nextBtn) nextBtn.disabled = (this.guideIdx === 2);
+      },
+      moveGuide(dir) {
+        this.guideIdx = Math.max(0, Math.min(2, this.guideIdx + dir));
+        this.updateGuide();
+      },
+      finishGuideAndStart() {
+        this.modal('modal-guide', 0);
+        game.runCountdownAndPlay();
+      },
+      toMain() {
+        game.stop();
+        $('stage-transition-overlay').classList.remove('show');
+        this.modal('modal-upgrade', 0);
+        this.modal('modal-inventory', 0);
+        this.modal('modal-guide', 0);
+        $('screen-over').classList.add('hide');
+        $('screen-title').classList.remove('hide');
+      },
+      openInventory() {
+        if (game.active && !game.isFever) clearInterval(game.hpTimer);
+        playTone([[520, 0], [680, 0.06]], 'triangle', 0.12, 0.15);
+        const listEl = $('inventory-card-list');
+        listEl.innerHTML = '';
+        const acquiredKeys = Object.keys(game.acquiredUpgrades);
+        
+        if (acquiredKeys.length === 0) {
+          listEl.innerHTML = `
+            <div style="padding: 24px 10px; text-align: center; color: #888; font-weight: 800; font-size: 0.9rem; line-height: 1.6;">
+              아직 획득한 특성이 없습니다.<br>스테이지를 클리어하여 강력한 능력을 얻어보세요!
+            </div>
+          `;
+        } else {
+          acquiredKeys.forEach(id => {
+            const data = game.acquiredUpgrades[id];
+            const stackedText = getStackedStatText(data.id, data.level);
+            const stackedTagHtml = stackedText ? `<span class="upgrade-stacked-tag">${stackedText}</span>` : '';
+
+            const card = document.createElement('div');
+            card.className = 'inventory-card';
+            card.innerHTML = `
+              <div class="upgrade-icon-box" style="min-width: 40px; height: 40px; font-size: 1.6rem;">${data.icon}</div>
+              <div class="upgrade-content">
+                <div class="upgrade-header-row">
+                  <span class="upgrade-name">${data.name}</span>
+                  <div style="display:flex; align-items:center; gap:4px;">
+                    <span class="inventory-level-badge">Lv.${data.level}</span>
+                    <span class="upgrade-tag ${data.tagClass}">${data.tag}</span>
+                  </div>
+                </div>
+                <div class="upgrade-desc">${data.desc} ${stackedTagHtml}</div>
+              </div>
+            `;
+            listEl.appendChild(card);
+          });
+        }
+        this.modal('modal-inventory', 1);
+      },
+      closeInventory() {
+        this.modal('modal-inventory', 0);
+        if (game.active && !game.isFever) {
+          clearInterval(game.hpTimer);
+          game.hpTimer = setInterval(() => game.updateHp(-1), game.drainIntervalMs);
+        }
+      }
+    };
+
+    function getAppleFromPoint(x, y) {
+      const el = document.elementFromPoint(x, y)?.closest('.apple');
+      if (el && !el.classList.contains('cleared')) return el;
+      const board = $('board');
+      if (!board) return null;
+      const bRect = board.getBoundingClientRect();
+      if (x < bRect.left - 25 || x > bRect.right + 25 || y < bRect.top - 25 || y > bRect.bottom + 25) return null;
+      const cellW = bRect.width / game.cols;
+      const cellH = bRect.height / game.rows;
+      const c = Math.max(0, Math.min(game.cols - 1, Math.floor((x - bRect.left) / cellW)));
+      const r = Math.max(0, Math.min(game.rows - 1, Math.floor((y - bRect.top) / cellH)));
+      const cell = game.grid[r]?.[c];
+      return (cell && !cell.cleared) ? cell.el : null;
+    }
+
     const game = {
       modes: {
         pc: { rows: 10, cols: 17, appleSize: '34px', appleGap: '8px' },
@@ -1139,9 +1270,7 @@
       feverTimer: null,
       feverTimeRemaining: 0,
 
-      // 폭탄 사과 주기 검사 타이머
       bombTickTimer: null,
-
       hpTimer: null, hintTimer: null, transitionTimer: null,
       active: false, isTransitioning: false, drag: false, dragStart: null, currentSelection: null, highlighted: [],
 
@@ -1394,11 +1523,10 @@
         nextStep();
       },
 
-      // 사과 데이터 생성 (황금 3.5%, 폭탄 2.5% 희귀 확률 적용)
       createAppleCell(r, c) {
         const rand = Math.random();
         let type = 'normal';
-        const activeBombs = this.grid ? this.grid.flat().filter(cell => cell && cell.type === 'bomb' && !cell.cleared).length : 0;
+        const activeBombs = this.grid && this.grid.length ? this.grid.flat().filter(cell => cell && cell.type === 'bomb' && !cell.cleared).length : 0;
 
         if (rand < 0.035) {
           type = 'gold';
@@ -1437,7 +1565,6 @@
         );
       },
 
-      // 폭탄 타이머 관리 루프
       startBombLoop() {
         clearInterval(this.bombTickTimer);
         this.bombTickTimer = setInterval(() => {
@@ -1448,7 +1575,6 @@
               const tag = cell.el.querySelector('.bomb-timer-tag');
               if (tag) tag.textContent = `${Math.ceil(Math.max(0, cell.bombTime))}s`;
 
-              // 폭탄 타이머 종료 시 오발 폭발
               if (cell.bombTime <= 0) {
                 this.detonateBomb(cell, false);
               }
@@ -1457,7 +1583,6 @@
         }, 500);
       },
 
-      // 폭탄 사과 3x3 범위 폭발 처리
       detonateBomb(bombCell, isSuccess = true) {
         if (!bombCell || bombCell.cleared) return;
         const bRect = $('board-wrapper').getBoundingClientRect();
@@ -1474,7 +1599,6 @@
         void $('game-container').offsetWidth;
         $('game-container').classList.add('shake');
 
-        // 주변 3x3 범위 셀 탐색
         const affectedCells = [];
         for (let dr = -1; dr <= 1; dr++) {
           for (let dc = -1; dc <= 1; dc++) {
@@ -1498,14 +1622,12 @@
         });
 
         if (isSuccess) {
-          // 제한시간 내 맞춘 경우: 대박 점수 획득 (+50점)
           const bonus = 50 + affectedCells.length * 2;
           this.score += bonus;
           this.updateHeaderUI();
           showFloatingScore(boxRect, bonus);
           this.checkStageProgress();
         } else {
-          // 제한시간 초과 실패 폭발: HP -20 패널티
           this.updateHp(-20);
           showFloatingMiss(boxRect, 'BOMB! -20 HP');
         }
@@ -1757,7 +1879,6 @@
       if (canClear) {
         triggerRedPixelSlash(curBoxRect, sel.isDiag, sel.sRect, sel.eRect, sel.r1, sel.c1, sel.r2, sel.c2);
 
-        // 폭탄사과 포함 매칭 검사
         const bombCell = sel.cells.find(c => c.type === 'bomb');
         if (bombCell && !game.isFever) {
           game.detonateBomb(bombCell, true);
@@ -1837,7 +1958,6 @@
       let selectedCells = unclearedRect;
       let isGoldMatch = false;
 
-      // 거리 계산 (황금사과 2칸 이내 판정용)
       const dist = Math.max(Math.abs(r2 - r1), Math.abs(c2 - c1));
 
       if (game.isFever) {
@@ -1848,7 +1968,6 @@
         const targetCells = isPureDiag ? unclearedDiag : unclearedRect;
         const containsGold = targetCells.some(c => c.type === 'gold');
 
-        // [황금사과 기믹]: 2칸 내외 드래그 시 합 10 계산 없이 무조건 유효
         if (containsGold && dist <= 2 && targetCells.length > 0) {
           valid = true;
           isGoldMatch = true;
