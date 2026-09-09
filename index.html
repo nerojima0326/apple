@@ -59,6 +59,7 @@
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 900; }
     .btn-close { background: none; border: none; font-size: 1.4rem; color: #888; cursor: pointer; }
+    .btn-close:disabled { opacity: 0.2; cursor: not-allowed; }
 
     /* 테마 선택 전용 UI */
     .theme-toggle-wrapper { display: flex; flex-direction: column; gap: 6px; width: 100%; margin: 10px 0 4px 0; }
@@ -170,8 +171,10 @@
       max-width: 260px; font-size: 1.2rem; font-weight: 900; border-radius: 12px;
       box-shadow: 0 5px 0 var(--border); transition: transform .1s;
     }
-    .btn-action:hover { transform: translateY(-2px); }
-    .btn-action:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--border); }
+    .btn-action:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn-action:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--border); }
+    .btn-action:disabled { opacity: 0.45; cursor: not-allowed; background: #78909c !important; box-shadow: none !important; }
+
     .btn-secondary { background: #546e7a; max-width: 140px; }
     .btn-sub {
       background: var(--card); color: var(--text); border: 2px solid var(--border); padding: 8px 18px;
@@ -688,16 +691,17 @@
     </div>
   </div>
 
-  <!-- 게임 시작 전 가이드 모달 -->
+  <!-- 게임 시작 전 가이드 모달 (3페이지까지 정독해야 시작 가능) -->
   <div class="overlay" id="modal-guide">
     <div class="modal guide-modal">
       <div class="modal-header">
         <h3>🎮 게임 방법 & 규칙</h3>
-        <button class="btn-close" onclick="ui.finishGuideAndStart()">✕</button>
+        <button class="btn-close" id="btn-guide-close" onclick="ui.finishGuideAndStart()">✕</button>
       </div>
       
       <div class="guide-viewport">
         <div class="guide-track" id="guide-track">
+          <!-- 페이지 1 -->
           <div class="guide-slide">
             <b>1. 자유로운 드래그 매칭</b>
             <p style="font-size: .85rem; color: #666; margin: 6px 0 10px 0;">어느 방향이든 네모/직선 드래그로 합이 10이면 모두 베어집니다.</p>
@@ -710,29 +714,31 @@
             </div>
           </div>
           
+          <!-- 페이지 2 -->
           <div class="guide-slide">
-            <b>2. 황금사과 & 폭탄사과 기믹</b>
+            <b>2. 폭탄 사과 & 특수 기믹</b>
             <p style="font-size: .85rem; color: #666; text-align: left; margin: 6px 0 10px 0; line-height: 1.5;">
-              • <strong>✨ 황금사과:</strong> 2칸 이내라면 합 계산 없이 무조건 참격 성공! (+15점)<br>
-              • <strong>💣 폭탄사과:</strong> 8초 내 합 10으로 터뜨리면 3x3 범위가 연쇄 폭발하며 +50점! (초과 시 폭발하여 HP -20 감소)
+              • <strong>💣 폭탄 사과:</strong> 8초 내 합 10으로 매칭 시 3×3 범위 연쇄 폭발 및 +50점! (제한시간 초과 시 자폭하여 HP -20 패널티)<br>
+              • <strong>✨ 황금 사과:</strong> 스테이지 클리어 특성 선택으로 획득 가능! 2칸 이내 무조건 참격 성공 (+15점)
             </p>
             <div class="mini-demo-wrapper">
               <div class="mini-board" style="grid-template-columns: repeat(3, 28px); grid-template-rows: repeat(2, 28px);">
-                <div class="mini-apple" style="background:#ffd600; color:#3e2723;">✨</div><div class="mini-apple">8</div><div class="mini-apple">2</div>
                 <div class="mini-apple" style="background:#263238; color:#fff;">💣</div><div class="mini-apple">5</div><div class="mini-apple">5</div>
+                <div class="mini-apple" style="background:#ffd600; color:#3e2723;">✨</div><div class="mini-apple">8</div><div class="mini-apple">2</div>
               </div>
             </div>
           </div>
           
+          <!-- 페이지 3 -->
           <div class="guide-slide">
-            <b>3. 10콤보 피버 & 드래그 참격</b>
+            <b>3. 10콤보 피버 & 무한 재생성</b>
             <p style="font-size: .85rem; color: #666; text-align: left; margin: 8px 0 14px 0; line-height: 1.6;">
-              • <strong>🔥 블레이드 피버 타임:</strong> 10콤보 달성 시 피버 돌입! 드래그한 영역을 합 상관없이 싹쓸이!<br>
-              • <strong>🍎 3초 재생성:</strong> 제거된 사과는 3초 후 새 숫자로 퐁퐁 자라납니다.
+              • <strong>🔥 블레이드 피버:</strong> 10콤보를 채우면 5초간 피버 모드! 드래그한 영역의 모든 사과를 무조건 참격!<br>
+              • <strong>🍎 3초 재생성:</strong> 제거된 사과는 정확히 3초 후 새로운 숫자로 자라납니다.
             </p>
             <div class="mini-demo-wrapper">
               <div class="mini-board" style="padding: 8px 20px; font-weight: 900; font-size: 0.9rem; color: var(--apple-red); letter-spacing: 1.5px;">
-                🔥 GOLD & BOMB & FEVER!
+                🔥 FEVER & REGEN!
               </div>
             </div>
           </div>
@@ -745,8 +751,9 @@
         <button class="btn-sub" id="btn-guide-next" onclick="ui.moveGuide(1)">다음 (D) ▶</button>
       </div>
 
-      <button class="btn-action" style="margin-top: 12px; width: 100%; max-width: none; padding: 11px 0; font-size: 1.1rem;" onclick="ui.finishGuideAndStart()">
-        게임 시작 (Enter) ▶
+      <!-- 3페이지 정독 전에는 비활성화 상태 유지 -->
+      <button class="btn-action" id="btn-guide-start" style="margin-top: 12px; width: 100%; max-width: none; padding: 11px 0; font-size: 1.05rem;" onclick="ui.finishGuideAndStart()" disabled>
+        모든 규칙을 확인해주세요 (1/3)
       </button>
     </div>
   </div>
@@ -900,7 +907,6 @@
   <script>
     const $ = id => document.getElementById(id);
     
-    // 오디오 컨텍스트 안전 초기화
     let audio = null;
     function getAudioContext() {
       if (!audio) {
@@ -1097,11 +1103,18 @@
         case 'fever_strike': return `(총 콤보당 +${2 + level * 2}점)`;
         case 'emergency_heal': return `(총 +${35 * level} HP 회복)`;
         case 'apple_harvest': return `(총 스테이지당 +${level * 25}점)`;
+        case 'gold_apple': return `(총 출현율 ${(level * 5)}%)`;
         default: return `(Lv.${level} 합산 적용)`;
       }
     }
 
+    // 황금사과를 포함한 확장 9종 특성 풀
     const UPGRADE_POOL = [
+      {
+        id: 'gold_apple', icon: '✨', tag: '특수', tagClass: 'tag-utility',
+        name: '황금빛 축복 (황금 사과)', desc: '2칸 이내 무조건 참격 가능한 <span class="upgrade-stat-highlight">황금사과 출현율 +5%</span>',
+        apply: () => { game.goldAppleChance += 0.05; }
+      },
       {
         id: 'fast_hint', icon: '💡', tag: '보조', tagClass: 'tag-utility',
         name: '빠른 통찰 (천리안)', desc: '힌트 대기시간 <span class="upgrade-stat-highlight">-1.5초</span> 단축',
@@ -1146,6 +1159,7 @@
 
     const ui = {
       guideIdx: 0,
+      hasReadGuide: false,
       modal(id, show) { const el = $(id); if (el) el.classList.toggle('show', !!show); },
       theme(dark) {
         document.body.classList.toggle('dark-mode', !!dark);
@@ -1158,14 +1172,40 @@
         $('guide-page').textContent = `${this.guideIdx + 1} / 3`;
         const prevBtn = $('btn-guide-prev');
         const nextBtn = $('btn-guide-next');
+        const startBtn = $('btn-guide-start');
+        const closeBtn = $('btn-guide-close');
+
         if (prevBtn) prevBtn.disabled = (this.guideIdx === 0);
         if (nextBtn) nextBtn.disabled = (this.guideIdx === 2);
+
+        // 3페이지 도달 시 정독 완료 처리
+        if (this.guideIdx === 2) {
+          this.hasReadGuide = true;
+        }
+
+        if (startBtn) {
+          if (this.hasReadGuide) {
+            startBtn.disabled = false;
+            startBtn.textContent = '게임 시작 (Enter) ▶';
+            startBtn.style.background = 'var(--apple-red)';
+          } else {
+            startBtn.disabled = true;
+            startBtn.textContent = `모든 규칙을 확인해주세요 (${this.guideIdx + 1}/3)`;
+            startBtn.style.background = '#78909c';
+          }
+        }
+
+        if (closeBtn) {
+          closeBtn.disabled = !this.hasReadGuide;
+          closeBtn.style.cursor = this.hasReadGuide ? 'pointer' : 'not-allowed';
+        }
       },
       moveGuide(dir) {
         this.guideIdx = Math.max(0, Math.min(2, this.guideIdx + dir));
         this.updateGuide();
       },
       finishGuideAndStart() {
+        if (!this.hasReadGuide) return;
         this.modal('modal-guide', 0);
         game.runCountdownAndPlay();
       },
@@ -1258,6 +1298,9 @@
       drainIntervalMs: 1000,
       acquiredUpgrades: {},
 
+      // 황금사과 기본 출현율은 0 (특성 선택 시 증가)
+      goldAppleChance: 0,
+
       combo: 0,
       comboBonus: 0,
       currentComboMaxTime: 7.5,
@@ -1336,7 +1379,12 @@
           this.hasEmergencyShield = false;
           this.drainIntervalMs = 1000;
           this.acquiredUpgrades = {};
+          this.goldAppleChance = 0;
+
+          // 게임을 처음부터 시작할 때만 보드를 신규 생성
+          this.renderBoard();
         }
+        // 다음 스테이지 진입 시에는 checkStageProgress에서 이미 보드를 생성했으므로 재추첨하지 않음!
 
         this.shieldUsedThisStage = false;
         this.combo = 0;
@@ -1346,10 +1394,10 @@
         this.updateHeaderUI();
         this.updateFeverUI();
         this.updateHp(0);
-        this.renderBoard();
 
         if (showGuide) {
           ui.guideIdx = 0;
+          ui.hasReadGuide = false;
           ui.updateGuide();
           ui.modal('modal-guide', 1);
         } else if (isFirstStart) {
@@ -1431,6 +1479,8 @@
 
           this.updateHp(30);
           this.updateHeaderUI();
+
+          // 스테이지가 끝나는 시점에 다음 보드를 미리 렌더링 (START 나올 때 바뀌지 않음)
           this.renderBoard();
 
           this.runTransitionSequence([
@@ -1528,9 +1578,10 @@
         let type = 'normal';
         const activeBombs = this.grid && this.grid.length ? this.grid.flat().filter(cell => cell && cell.type === 'bomb' && !cell.cleared).length : 0;
 
-        if (rand < 0.035) {
+        // 황금사과는 특성으로 획득했을 때만 출현
+        if (this.goldAppleChance > 0 && rand < this.goldAppleChance) {
           type = 'gold';
-        } else if (rand < 0.047 && activeBombs < 1) {
+        } else if (rand < (this.goldAppleChance + 0.025) && activeBombs < 2) {
           type = 'bomb';
         }
 
@@ -2068,8 +2119,8 @@
       if ($('modal-guide').classList.contains('show')) {
         if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') ui.moveGuide(-1);
         if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') ui.moveGuide(1);
-        if (e.key === 'Enter' || e.key === ' ') ui.finishGuideAndStart();
-        if (e.key === 'Escape') ui.finishGuideAndStart();
+        if ((e.key === 'Enter' || e.key === ' ') && ui.hasReadGuide) ui.finishGuideAndStart();
+        if (e.key === 'Escape' && ui.hasReadGuide) ui.finishGuideAndStart();
       }
     });
 
