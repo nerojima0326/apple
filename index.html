@@ -572,6 +572,25 @@
     }
     .combo-widget.active { opacity: 1; transform: scale(1); }
     .combo-widget.pop { animation: comboPopAnim 0.16s ease-out; }
+
+    /* 업그레이드 카드 선택 시 '특성' 버튼으로 날아가는 아이콘 애니메이션 */
+    .trait-fly-icon {
+      position: fixed; z-index: 3000; pointer-events: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; background: var(--sub-bg); border: 2px solid var(--border);
+      border-radius: 9px; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      transition: top 0.55s cubic-bezier(0.5, -0.3, 0.35, 1.4),
+                  left 0.55s cubic-bezier(0.5, -0.3, 0.35, 1.4),
+                  width 0.55s ease, height 0.55s ease,
+                  opacity 0.5s ease 0.05s, transform 0.55s ease;
+    }
+    @keyframes traitBtnPulse {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.4); box-shadow: 0 0 16px rgba(16, 185, 129, 0.9); }
+      65% { transform: scale(0.92); }
+      100% { transform: scale(1); }
+    }
+    .btn-header.trait-pulse { animation: traitBtnPulse 0.5s ease-out; }
     @keyframes comboPopAnim { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
     .combo-title { font-size: 0.85rem; font-weight: 900; color: #ff9800; letter-spacing: 1.5px; }
     .combo-count {
@@ -852,7 +871,7 @@
       </div>
 
       <div style="display: flex; gap: 5px;">
-        <button class="btn-header" style="background:#10b981;" onclick="ui.openInventory()">⭐ 특성</button>
+        <button class="btn-header" id="btn-trait-icon" style="background:#10b981;" onclick="ui.openInventory()">⭐ 특성</button>
         <button class="btn-header" style="background:#546e7a;" onclick="ui.modal('modal-settings', 1)">⚙️</button>
         <button class="btn-header" onclick="game.start(true, false)">재도전</button>
         <button class="btn-header" style="background:#374151;" onclick="ui.toMain()">메인</button>
@@ -1076,6 +1095,50 @@
       setTimeout(() => slashEl.remove(), 320);
     }
 
+    // 업그레이드 카드를 선택했을 때, 아이콘이 헤더의 '⭐ 특성' 버튼으로
+    // 날아 들어가는 것처럼 보이는 연출. originEl은 클릭된 카드의 아이콘 박스.
+    function flyIconToTraitButton(originEl, iconText) {
+      const targetEl = $('btn-trait-icon');
+      if (!originEl || !targetEl) return;
+
+      const startRect = originEl.getBoundingClientRect();
+      const endRect = targetEl.getBoundingClientRect();
+
+      const flyEl = document.createElement('div');
+      flyEl.className = 'trait-fly-icon';
+      flyEl.textContent = iconText;
+      flyEl.style.top = `${startRect.top}px`;
+      flyEl.style.left = `${startRect.left}px`;
+      flyEl.style.width = `${startRect.width}px`;
+      flyEl.style.height = `${startRect.height}px`;
+      flyEl.style.opacity = '1';
+      flyEl.style.transform = 'rotate(0deg) scale(1)';
+      document.body.appendChild(flyEl);
+
+      // 강제 리플로우 후 목표 위치/크기로 트랜지션 시작
+      void flyEl.offsetWidth;
+
+      requestAnimationFrame(() => {
+        const endCenterX = endRect.left + endRect.width / 2;
+        const endCenterY = endRect.top + endRect.height / 2;
+        flyEl.style.top = `${endCenterY - 10}px`;
+        flyEl.style.left = `${endCenterX - 10}px`;
+        flyEl.style.width = '20px';
+        flyEl.style.height = '20px';
+        flyEl.style.opacity = '0.1';
+        flyEl.style.transform = 'rotate(360deg) scale(0.6)';
+      });
+
+      setTimeout(() => {
+        flyEl.remove();
+        targetEl.classList.remove('trait-pulse');
+        void targetEl.offsetWidth;
+        targetEl.classList.add('trait-pulse');
+        playTone([[660, 0], [990, 0.08]], 'triangle', 0.22, 0.18);
+        setTimeout(() => targetEl.classList.remove('trait-pulse'), 550);
+      }, 560);
+    }
+
     function getStackedStatText(id, level) {
       if (level <= 1) return '';
       switch (id) {
@@ -1087,6 +1150,7 @@
         case 'fever_strike': return `(총 콤보당 +${2 + level * 2}점)`;
         case 'emergency_heal': return `(총 +${35 * level} HP 회복)`;
         case 'apple_harvest': return `(총 스테이지당 +${level * 25}점)`;
+        case 'gold_apple_chance': return `(총 ${(level * 3)}% 확률)`;
         default: return `(Lv.${level} 합산 적용)`;
       }
     }
@@ -1128,9 +1192,14 @@
         apply: () => { game.hasEmergencyShield = true; }
       },
       {
-        id: 'apple_harvest', icon: '✨', tag: '점수', tagClass: 'tag-score',
+        id: 'apple_harvest', icon: '🌾', tag: '점수', tagClass: 'tag-score',
         name: '황금빛 결실 (클리어 보너스)', desc: '스테이지 통과 시마다 즉시 <span class="upgrade-stat-highlight">+25점</span> 보너스 지급',
         apply: () => { game.stageClearBonus += 25; }
+      },
+      {
+        id: 'gold_apple_chance', icon: '✨', tag: '특수', tagClass: 'tag-utility',
+        name: '황금사과 발견 (연금술)', desc: '다음 스테이지부터 사과가 <span class="upgrade-stat-highlight">3%</span> 확률로 황금사과로 등장 (2칸 이내 합 무시 참격 성공 + 15점, 중첩 시 확률 증가)',
+        apply: () => { game.goldAppleChance = (game.goldAppleChance || 0) + 0.03; }
       }
     ];
 
@@ -1258,6 +1327,7 @@
       shieldUsedThisStage: false,
       drainIntervalMs: 1000,
       acquiredUpgrades: {},
+      goldAppleChance: 0,
 
       combo: 0,
       comboBonus: 0,
@@ -1337,6 +1407,7 @@
           this.hasEmergencyShield = false;
           this.drainIntervalMs = 1000;
           this.acquiredUpgrades = {};
+          this.goldAppleChance = 0;
         }
 
         this.shieldUsedThisStage = false;
@@ -1472,6 +1543,9 @@
               this.acquiredUpgrades[item.id] = { ...item, level: 1 };
             }
 
+            const iconBoxEl = card.querySelector('.upgrade-icon-box');
+            flyIconToTraitButton(iconBoxEl, item.icon);
+
             setTimeout(() => {
               ui.modal('modal-upgrade', 0);
               setTimeout(() => { this.start(false); }, 700);
@@ -1529,9 +1603,14 @@
         let type = 'normal';
         const activeBombs = this.grid && this.grid.length ? this.grid.flat().filter(cell => cell && cell.type === 'bomb' && !cell.cleared).length : 0;
 
-        if (rand < 0.035) {
+        // 황금사과는 필드에서 자연 발생하지 않고, '황금빛 발견' 특성을 획득해야만
+        // goldAppleChance 확률만큼 등장합니다 (기본값 0).
+        const goldChance = this.goldAppleChance || 0;
+        const bombChance = 0.012;
+
+        if (goldChance > 0 && rand < goldChance) {
           type = 'gold';
-        } else if (rand < 0.047 && activeBombs < 1) {
+        } else if (rand < goldChance + bombChance && activeBombs < 1) {
           type = 'bomb';
         }
 
