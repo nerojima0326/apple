@@ -54,6 +54,11 @@
     strong, b { font-weight: 700; }
 
     #bg-scene { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: -1; image-rendering: pixelated; pointer-events: none; }
+    /* 구름은 CSS 이동 애니메이션으로 흐름 (GPU 처리라 끊김 없음) */
+    #bg-clouds { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+    .bg-cloud { position: absolute; left: 0; image-rendering: pixelated; animation: cloudDrift linear infinite; will-change: transform; }
+    @keyframes cloudDrift { from { transform: translateX(calc(var(--cw) * -1)); } to { transform: translateX(100vw); } }
+    body.fx-lite .bg-cloud { animation-play-state: paused; }
 
     /* ---------- 픽셀 아이콘 & 테두리 ---------- */
     .ico { display: inline-block; width: 12px; height: 12px; flex: none; vertical-align: -2px; background: center / 100% 100% no-repeat; image-rendering: pixelated; }
@@ -86,14 +91,14 @@
     .shine::after {
       content: ""; position: absolute; top: 0; bottom: 0; left: -24px; width: 6px; pointer-events: none;
       background: rgba(255, 255, 255, 0.5); box-shadow: 10px 0 0 rgba(255, 255, 255, 0.28);
-      transform: translateX(0) skewX(-20deg); animation: btnShine 3s steps(20) infinite;
+      transform: translateX(0) skewX(-20deg); animation: btnShine 3s ease-in-out infinite;
     }
     @keyframes btnShine { 0% { transform: translateX(0) skewX(-20deg); } 35%, 100% { transform: translateX(360px) skewX(-20deg); } }
 
     /* ---------- 오버레이 & 모달 ---------- */
     .overlay {
       position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1005; padding: 12px;
-      opacity: 0; pointer-events: none; transition: opacity .2s steps(4);
+      opacity: 0; pointer-events: none; transition: opacity .2s ease;
       background-color: var(--dim);
       background-image: conic-gradient(rgba(0,0,0,0.22) 25%, transparent 0 50%, rgba(0,0,0,0.22) 0 75%, transparent 0);
       background-size: 4px 4px;
@@ -102,7 +107,7 @@
     .modal {
       width: 92%; max-width: 456px; max-height: 92vh; max-height: 92dvh; overflow-y: auto; padding: 12px 14px;
       border-style: solid; border-color: transparent; border-width: 8px 8px 12px; border-image: var(--fr-paper) 4 4 6 fill / 8px 8px 12px / 0 stretch; image-rendering: pixelated;
-      transform: translateY(24px); transition: transform .2s steps(4);
+      transform: translateY(24px); transition: transform .2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
     }
     .overlay.show .modal { transform: none; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
@@ -131,7 +136,7 @@
     /* ---------- 타이틀 화면 ---------- */
     .screen-overlay {
       position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px;
-      z-index: 1000; opacity: 1; pointer-events: auto; transition: opacity .3s steps(5), transform .3s steps(5);
+      z-index: 1000; opacity: 1; pointer-events: auto; transition: opacity .3s ease, transform .3s ease;
     }
     .screen-overlay.hide { opacity: 0; pointer-events: none !important; transform: translateY(-16px); }
     /* 타이틀·결과 화면이 떠 있으면 뒤의 게임 판은 숨김 (과수원 풍경만 보이게) */
@@ -153,14 +158,14 @@
     }
     .pixel-apple-big {
       width: 96px; height: 96px; margin: 4px 0 8px; background: var(--spr-hero) center / 100% 100% no-repeat; image-rendering: pixelated;
-      animation: heroBob 1.6s steps(4) infinite alternate; filter: drop-shadow(0 6px 0 rgba(42, 22, 16, 0.25));
+      animation: heroBob 1.6s ease-in-out infinite alternate; filter: drop-shadow(0 6px 0 rgba(42, 22, 16, 0.25));
     }
     @keyframes heroBob { from { transform: translateY(0); } to { transform: translateY(-8px); } }
     .big-title {
       margin: 0; font-size: var(--fs-5); font-weight: 700; line-height: 1; letter-spacing: 4px; color: var(--apple);
       text-shadow: var(--o4); text-wrap: balance;
     }
-    .title-wave span { display: inline-block; animation: titleBounce 2.4s steps(6) infinite; animation-delay: calc(var(--i) * 0.15s); }
+    .title-wave span { display: inline-block; animation: titleBounce 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * 0.15s); }
     @keyframes titleBounce { 0%, 50%, 100% { transform: translateY(0); } 20% { transform: translateY(-12px); } 35% { transform: translateY(2px); } }
     .title-ribbon {
       margin: 16px 0 4px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; letter-spacing: 2px;
@@ -198,16 +203,17 @@
     .record-badge {
       display: none; margin: 0 0 8px; padding: 0 10px; align-items: center; gap: 6px; font-weight: 700; letter-spacing: 1px;
       border-style: solid; border-color: transparent; border-width: 8px 8px 12px; border-image: var(--fr-gold) 4 4 6 fill / 8px 8px 12px / 0 stretch; image-rendering: pixelated;
-      color: #3a1f14; animation: recordStamp 0.5s steps(3) infinite alternate;
+      color: #3a1f14; animation: recordStamp 0.5s ease-in-out infinite alternate;
     }
     .record-badge.show { display: inline-flex; }
     @keyframes recordStamp { from { transform: rotate(-3deg) scale(1); } to { transform: rotate(3deg) scale(1.08); } }
 
     /* ---------- 게임 화면 ---------- */
     .game-container {
-      position: relative; max-width: 100vw; display: flex; flex-direction: column; align-items: center; padding: 8px 12px 14px;
+      position: relative; max-width: 100vw; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 12px; align-items: start; padding: 8px 12px 14px;
       border-style: solid; border-color: transparent; border-width: 8px 8px 12px; border-image: var(--fr-paper) 4 4 6 fill / 8px 8px 12px / 0 stretch; image-rendering: pixelated;
       will-change: translate; /* 화면 흔들림을 다시 그리기 없이 GPU에서 처리 */
+      margin-right: 148px;    /* 오른쪽 밖 콤보 간판까지 한 덩어리로 가운데 정렬 */
     }
     .game-container.fever-mode { animation: feverFrame 0.4s steps(2) infinite; }
     @keyframes feverFrame { 0% { box-shadow: 0 0 0 4px #ff3d00, 0 0 0 8px var(--line); } 50% { box-shadow: 0 0 0 4px var(--gold), 0 0 0 8px var(--line); } }
@@ -220,7 +226,7 @@
     @keyframes bannerBlink { 50% { color: var(--gold); } }
     .game-container.fever-mode .fever-banner { display: inline-flex; }
 
-    .header-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px; margin-bottom: 6px; }
+    .header-bar { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px; margin-bottom: 6px; }
     .hud-hp, .hud-mid, .hud-buttons { display: flex; align-items: center; gap: 6px; }
     .hud-mid { gap: 10px; }
     .hud-num { font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -228,10 +234,10 @@
       position: relative; width: 92px; height: 20px; overflow: hidden;
       border-style: solid; border-color: transparent; border-width: 6px; border-image: var(--fr-track) 3 fill / 6px / 0 stretch; image-rendering: pixelated;
     }
-    .hp-bar-fill { position: relative; z-index: 1; width: 100%; height: 100%; background: #5fc45a; transition: width .2s steps(4); box-shadow: inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -2px 0 rgba(0,0,0,0.25); }
-    .hp-bar-ghost { position: absolute; left: 0; top: 0; height: 100%; width: 100%; background: #fff4dc; transition: width .45s steps(6) .28s; }
+    .hp-bar-fill { position: relative; z-index: 1; width: 100%; height: 100%; background: #5fc45a; transition: width .2s ease-out; box-shadow: inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -2px 0 rgba(0,0,0,0.25); }
+    .hp-bar-ghost { position: absolute; left: 0; top: 0; height: 100%; width: 100%; background: #fff4dc; transition: width .45s ease-out .28s; }
     .hp-bar-bg::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: repeating-linear-gradient(90deg, transparent 0 14px, rgba(42,22,16,0.45) 14px 16px); }
-    .hp-bar-bg.hit { animation: hpHit .32s steps(4); }
+    .hp-bar-bg.hit { animation: hpHit .32s ease-out; }
     @keyframes hpHit { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
     .stage-badge {
       display: inline-flex; align-items: center; gap: 6px; padding: 0 8px; font-weight: 700; white-space: nowrap;
@@ -241,7 +247,7 @@
     .hud-score { display: flex; align-items: center; gap: 6px; font-weight: 700; }
     .hud-label { color: var(--text-soft); }
     #score-text { display: inline-block; min-width: 3ch; font-size: var(--fs-2); line-height: 1; color: var(--apple); text-shadow: var(--o2); font-variant-numeric: tabular-nums; }
-    #score-text.bump { animation: scoreBump 0.28s steps(3); }
+    #score-text.bump { animation: scoreBump 0.28s ease-out; }
     @keyframes scoreBump { 0% { transform: scale(1); } 40% { transform: scale(1.25) translateY(-2px); color: var(--orange); } 100% { transform: scale(1); } }
     .btn-header {
       display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0 6px;
@@ -250,7 +256,7 @@
     .btn-header.px-green { border-image-source: var(--fr-green); border-image-repeat: stretch; }
     .btn-header.px-red { border-image-source: var(--fr-red); border-image-repeat: stretch; }
     .btn-header .ico-2 { margin: -6px -2px; }
-    .btn-header.trait-pulse { animation: traitBtnPulse 0.5s steps(4); }
+    .btn-header.trait-pulse { animation: traitBtnPulse 0.5s ease-out; }
     @keyframes traitBtnPulse { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.3); } 70% { transform: scale(0.92); } }
 
     .target-progress-container, .fever-gauge-container { width: 100%; display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
@@ -264,25 +270,26 @@
     }
     .target-progress-track::after, .fever-gauge-track::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(90deg, transparent 0 22px, rgba(42,22,16,0.4) 22px 24px); }
     .target-progress-fill {
-      position: relative; width: 0%; height: 100%; overflow: hidden; transition: width 0.25s steps(5);
+      position: relative; width: 0%; height: 100%; overflow: hidden; transition: width 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
       background: linear-gradient(#93dd6f 0 2px, #43a94f 2px calc(100% - 2px), #24692f calc(100% - 2px));
     }
     .target-progress-fill::after {
       content: ""; position: absolute; top: 0; left: 0; width: 16px; height: 100%;
-      background: rgba(255,255,255,0.55); animation: barShine 2.2s steps(22) infinite;
+      background: rgba(255,255,255,0.55); animation: barShine 2.2s linear infinite;
     }
     @keyframes barShine { from { transform: translateX(-24px); } to { transform: translateX(1200px); } }
     .fever-gauge-fill {
-      width: 0%; height: 100%; transition: width 0.2s steps(4);
+      width: 0%; height: 100%; transition: width 0.1s linear;
       background: repeating-linear-gradient(90deg, #ff3d00 0 8px, #ff8a1f 8px 16px); background-size: 16px 100%;
       box-shadow: inset 0 2px 0 rgba(255, 235, 150, 0.6), inset 0 -2px 0 rgba(0,0,0,0.25);
     }
-    .game-container.fever-mode .fever-gauge-fill { animation: feverStripes 0.3s steps(4) infinite; background-image: repeating-linear-gradient(90deg, #ffd23f 0 8px, #ff3d00 8px 16px); }
+    .game-container.fever-mode .fever-gauge-fill { animation: feverStripes 0.3s linear infinite; background-image: repeating-linear-gradient(90deg, #ffd23f 0 8px, #ff3d00 8px 16px); }
     @keyframes feverStripes { to { background-position: 16px 0; } }
 
     /* ---------- 나무 사과상자 보드 ---------- */
     /* 상자 테두리는 장식 레이어(::before)에 그림: 보드 자체 테두리가 0이어야 드래그·보스 위치 계산이 맞음 */
     .board-wrapper {
+      grid-column: 1 / -1; justify-self: center; margin-top: 2px;
       position: relative; overflow: visible; touch-action: none; padding: 20px;
       background-color: var(--crate-in);
       background-image:
@@ -312,8 +319,7 @@
       transition: transform .08s;
     }
     .apple.cleared { visibility: hidden; pointer-events: none; }
-    .apple.gold-apple { background-image: var(--spr-gold); color: #fffbe6; animation: goldGlint 1.2s steps(2) infinite; }
-    @keyframes goldGlint { 50% { filter: brightness(1.18); } }
+    .apple.gold-apple { background-image: var(--spr-gold); color: #fffbe6; }
     .apple.bomb-apple { background-image: var(--spr-bomb); color: #fff; }
     .apple.bomb-apple::after {
       content: ""; position: absolute; width: calc(var(--apple-size) * 0.125); height: calc(var(--apple-size) * 0.125);
@@ -326,26 +332,23 @@
       padding: 1px 3px; font-size: var(--fs-1); font-weight: 700; line-height: 1; color: #fff; text-shadow: none;
       background: #b3202f; box-shadow: 0 0 0 2px var(--line);
     }
-    .apple.bomb-apple.critical { animation: bombCritical 0.5s steps(2) infinite; }
+    .apple.bomb-apple.critical { animation: bombCritical 0.5s ease-in-out infinite; }
     @keyframes bombCritical { 50% { transform: scale(1.12); filter: brightness(1.5) drop-shadow(0 0 4px #ff3d00); } }
     .apple.bomb-apple.critical .bomb-timer-tag { background: #ff3d00; }
 
-    /* 선택된 사과: 스프라이트 모양을 따라가는 픽셀 테두리 */
-    .apple.match-valid { transform: scale(1.12); z-index: 18; animation: pickBlink .3s steps(1) infinite; }
-    @keyframes pickBlink {
-      0% { filter: drop-shadow(2px 0 0 #ffd23f) drop-shadow(-2px 0 0 #ffd23f) drop-shadow(0 2px 0 #ffd23f) drop-shadow(0 -2px 0 #ffd23f); }
-      50% { filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff); }
-    }
-    .apple.hint-target { z-index: 18; animation: hintBlink .5s steps(1) infinite; }
-    @keyframes hintBlink {
-      0% { filter: drop-shadow(2px 0 0 #7cf27c) drop-shadow(-2px 0 0 #7cf27c) drop-shadow(0 2px 0 #7cf27c) drop-shadow(0 -2px 0 #7cf27c); }
-      50% { filter: none; }
-    }
-    .apple.respawning { visibility: visible !important; z-index: 15; animation: appleGrow 0.36s steps(4) forwards; }
+    /* 선택·힌트: 외곽선 색만 바뀐 스프라이트로 교체 (필터를 쓰지 않아 수십 개를 선택해도 가벼움) */
+    .apple.match-valid { transform: scale(1.12); z-index: 18; background-image: var(--spr-apple-sel); }
+    .apple.gold-apple.match-valid { background-image: var(--spr-gold-sel); }
+    .apple.bomb-apple.match-valid { background-image: var(--spr-bomb-sel); }
+    .apple.hint-target { z-index: 18; background-image: var(--spr-apple-hint); animation: hintBob 0.6s ease-in-out infinite alternate; }
+    .apple.gold-apple.hint-target { background-image: var(--spr-gold-hint); }
+    .apple.bomb-apple.hint-target { background-image: var(--spr-bomb-hint); }
+    @keyframes hintBob { to { transform: translateY(-3px); } }
+    .apple.respawning { visibility: visible !important; z-index: 15; animation: appleGrow 0.36s cubic-bezier(0.18, 0.89, 0.32, 1.35) forwards; }
     @keyframes appleGrow { 0% { transform: scale(0.2) translateY(30%); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-    .apple.exploding { pointer-events: none; z-index: 20; animation: applePop 0.27s steps(4) forwards; }
+    .apple.exploding { pointer-events: none; z-index: 20; animation: applePop 0.27s cubic-bezier(0.2, 0.8, 0.3, 1) forwards; }
     @keyframes applePop { 0% { transform: scale(1); filter: brightness(1.6); } 40% { transform: scale(1.35); filter: brightness(3); } 100% { transform: scale(0.2); opacity: 0; } }
-    .apple.entering { animation: appleDealIn 0.4s steps(5) both; animation-delay: var(--d, 0ms); }
+    .apple.entering { animation: appleDealIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.3) both; animation-delay: var(--d, 0ms); }
     @keyframes appleDealIn { 0% { transform: translateY(-32px); opacity: 0; } 60% { transform: translateY(4px); opacity: 1; } 100% { transform: none; opacity: 1; } }
 
     /* ---------- 2×2 보스 사과 ---------- */
@@ -354,15 +357,15 @@
       background: var(--spr-boss) center / 100% 100% no-repeat; image-rendering: pixelated;
       filter: drop-shadow(0 4px 0 rgba(42, 22, 16, 0.4));
     }
-    .elite-giant-apple.hit { animation: giantHit 0.16s steps(2); }
+    .elite-giant-apple.hit { animation: giantHit 0.16s ease-in-out; }
     @keyframes giantHit { 50% { transform: scale(0.92); filter: brightness(2.4); } }
-    .elite-giant-apple.appear { animation: bossAppear 0.6s steps(6) 0.35s both; }
+    .elite-giant-apple.appear { animation: bossAppear 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.4) 0.35s both; }
     @keyframes bossAppear { 0% { transform: translateY(-60px) scale(0.3); opacity: 0; } 70% { transform: translateY(6px) scale(1.1); opacity: 1; } 100% { transform: none; opacity: 1; } }
-    .giant-apple-crown { position: absolute; top: -26px; animation: crownBob 1s steps(2) infinite alternate; }
+    .giant-apple-crown { position: absolute; top: -26px; animation: crownBob 1s ease-in-out infinite alternate; }
     @keyframes crownBob { to { transform: translateY(-4px); } }
     .giant-apple-hp-container { width: 84%; margin-bottom: 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
     .giant-apple-hp-bar { width: 100%; height: 8px; background: var(--line); box-shadow: 0 0 0 2px var(--line); }
-    .giant-apple-hp-fill { width: 100%; height: 100%; background: linear-gradient(#ffe46a 0 2px, #ffc31a 2px); transition: width 0.15s steps(3); }
+    .giant-apple-hp-fill { width: 100%; height: 100%; background: linear-gradient(#ffe46a 0 2px, #ffc31a 2px); transition: width 0.15s ease-out; }
     .giant-apple-hp-text { font-weight: 700; color: #fff; text-shadow: var(--o1); line-height: 1; }
 
     /* ---------- 드래그 선택 · 힌트 ---------- */
@@ -374,7 +377,7 @@
         linear-gradient(0deg, #fff4dc 50%, transparent 50%) repeat-y 0 0 / 2px 12px,
         linear-gradient(0deg, #fff4dc 50%, transparent 50%) repeat-y 100% 0 / 2px 12px,
         rgba(255, 244, 220, 0.12);
-      animation: marchingAnts 0.6s steps(6) infinite;
+      animation: marchingAnts 0.6s linear infinite;
     }
     @keyframes marchingAnts { to { background-position: 12px 0, -12px 100%, 0 -12px, 100% 12px, 0 0; } }
     .selection-box.valid { background: rgba(255, 210, 63, 0.18); box-shadow: 0 0 0 2px var(--line), inset 0 0 0 2px var(--gold), 0 0 0 4px var(--gold); animation: none; }
@@ -385,13 +388,13 @@
       background: var(--line); color: #fff4dc; box-shadow: 0 0 0 2px #fff4dc;
     }
     .selection-box.valid .sum-indicator, .selection-box.diag-matched .sum-indicator, .selection-box.fever-drag .sum-indicator {
-      background: var(--gold); color: #3a1f14; box-shadow: 0 0 0 2px var(--line); animation: sumPop 0.3s steps(3);
+      background: var(--gold); color: #3a1f14; box-shadow: 0 0 0 2px var(--line); animation: sumPop 0.3s ease-out;
     }
     @keyframes sumPop { 45% { transform: scale(1.3); } }
     .hint-box { position: absolute; pointer-events: none; display: none; z-index: 25; }
     .hint-badge {
       position: absolute; top: -24px; left: 50%; transform: translateX(-50%); padding: 1px 4px; font-weight: 700; line-height: 1.2;
-      background: #7cf27c; color: #1d3a12; box-shadow: 0 0 0 2px var(--line); animation: hintBadge 0.5s steps(2) infinite;
+      background: #7cf27c; color: #1d3a12; box-shadow: 0 0 0 2px var(--line); animation: hintBadge 0.5s ease-in-out infinite;
     }
     @keyframes hintBadge { 50% { transform: translate(-50%, -3px); } }
 
@@ -400,16 +403,16 @@
       position: absolute; top: 16px; right: -148px; width: 128px; padding: 6px 4px; text-align: center; pointer-events: none; z-index: 25;
       border-style: solid; border-color: transparent; border-width: 8px 8px 12px; border-image: var(--fr-wood) 4 4 6 fill / 8px 8px 12px / 0 repeat; image-rendering: pixelated;
       color: var(--text-light); text-shadow: var(--o1);
-      opacity: 0; transform: translateX(-12px); transition: opacity .15s steps(3), transform .15s steps(3);
+      opacity: 0; transform: translateX(-12px); transition: opacity .15s ease-out, transform .15s ease-out;
     }
     .combo-widget.active { opacity: 1; transform: none; }
-    .combo-widget.pop { animation: comboPop 0.18s steps(3); }
+    .combo-widget.pop { animation: comboPop 0.18s ease-out; }
     @keyframes comboPop { 50% { transform: scale(1.15); } }
     .combo-title { font-weight: 700; letter-spacing: 2px; color: var(--gold); }
     .combo-count { margin: 4px 0; font-size: var(--fs-3); font-weight: 700; line-height: 1; color: #fff; text-shadow: var(--o3); font-variant-numeric: tabular-nums; }
     .combo-timer-badge { display: inline-flex; align-items: center; gap: 4px; margin-bottom: 4px; font-weight: 700; font-variant-numeric: tabular-nums; }
     .combo-progress-bg { width: 100%; height: 8px; background: var(--line); box-shadow: 0 0 0 2px var(--line); }
-    .combo-progress-bar { width: 100%; height: 100%; background: linear-gradient(#ffe46a 0 2px, #ff8a1f 2px); transition: width 0.08s steps(1); }
+    .combo-progress-bar { width: 100%; height: 100%; background: linear-gradient(#ffe46a 0 2px, #ff8a1f 2px); transition: width 0.1s linear; }
     .combo-widget[data-tier="1"] { box-shadow: 0 0 0 4px rgba(255, 210, 63, 0.6); }
     .combo-widget[data-tier="2"] { box-shadow: 0 0 0 4px #ff8a1f; }
     .combo-widget[data-tier="3"], .combo-widget[data-tier="fever"] { animation: comboBlaze 0.3s steps(2) infinite; }
@@ -417,7 +420,7 @@
 
     /* ---------- 떠오르는 글자 ---------- */
     .score-float, .damage-float, .callout { position: absolute; pointer-events: none; white-space: nowrap; font-weight: 700; line-height: 1; }
-    .score-float { z-index: 30; font-size: var(--fs-2); color: var(--gold); text-shadow: var(--o2); animation: scoreFloatUp 0.65s steps(8) forwards; }
+    .score-float { z-index: 30; font-size: var(--fs-2); color: var(--gold); text-shadow: var(--o2); animation: scoreFloatUp 0.65s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards; }
     .score-float.big { font-size: var(--fs-3); color: var(--orange); text-shadow: var(--o3); }
     .score-float.huge { font-size: var(--fs-4); color: #ff5d2a; text-shadow: var(--o3), 0 6px 0 var(--line); }
     @keyframes scoreFloatUp {
@@ -426,14 +429,14 @@
       75% { transform: translate(-50%, -32px) scale(1); opacity: 1; }
       100% { transform: translate(-50%, -48px); opacity: 0; }
     }
-    .damage-float { z-index: 35; font-size: var(--fs-2); color: #ff4545; text-shadow: var(--o2); animation: damageFloatUp 0.68s steps(8) forwards; }
+    .damage-float { z-index: 35; font-size: var(--fs-2); color: #ff4545; text-shadow: var(--o2); animation: damageFloatUp 0.68s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards; }
     @keyframes damageFloatUp {
       0% { transform: translate(-50%, 0) scale(0.7); opacity: 0; }
       25% { transform: translate(-50%, -16px) scale(1.25); opacity: 1; }
       75% { transform: translate(-50%, -28px); opacity: 1; }
       100% { transform: translate(-50%, -44px); opacity: 0; }
     }
-    .callout { z-index: 40; transform: translate(-50%, -50%); font-size: var(--fs-3); letter-spacing: 2px; color: #fff; text-shadow: var(--o3), 0 6px 0 var(--line); animation: calloutPop 0.95s steps(10) forwards; }
+    .callout { z-index: 40; transform: translate(-50%, -50%); font-size: var(--fs-3); letter-spacing: 2px; color: #fff; text-shadow: var(--o3), 0 6px 0 var(--line); animation: calloutPop 0.95s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
     .callout.t-great { color: var(--gold); }
     .callout.t-amazing { color: var(--orange); font-size: var(--fs-4); }
     .callout.t-gold { color: #fff3a6; }
@@ -443,7 +446,7 @@
       background: repeating-linear-gradient(90deg, #ff3d00 0 12px, #ffd23f 12px 24px, #43a94f 24px 36px, #3d8bfd 36px 48px, #9b5de5 48px 60px);
       background-size: 60px 100%; -webkit-background-clip: text; background-clip: text;
       filter: drop-shadow(3px 0 0 var(--line)) drop-shadow(-3px 0 0 var(--line)) drop-shadow(0 3px 0 var(--line)) drop-shadow(0 -3px 0 var(--line)) drop-shadow(0 6px 0 var(--line));
-      animation: calloutPop 1.2s steps(12) forwards, rainbowSlide 0.4s steps(5) infinite;
+      animation: calloutPop 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards, rainbowSlide 0.4s linear infinite;
     }
     @keyframes rainbowSlide { to { background-position: 60px 0; } }
     @keyframes calloutPop {
@@ -458,7 +461,7 @@
     .stage-transition-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: 2000;
       display: flex; align-items: center; justify-content: center; overflow: hidden;
-      opacity: 0; pointer-events: none !important; transition: opacity .15s steps(3);
+      opacity: 0; pointer-events: none !important; transition: opacity .15s ease;
       background-color: var(--dim);
       background-image: conic-gradient(rgba(0,0,0,0.22) 25%, transparent 0 50%, rgba(0,0,0,0.22) 0 75%, transparent 0);
       background-size: 4px 4px;
@@ -470,20 +473,20 @@
       -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 55%); mask-image: radial-gradient(circle, #000 0%, transparent 55%);
       transform: translate(-50%, -50%);
     }
-    .stage-transition-overlay.show::before { animation: raysSpin 16s steps(64) infinite; }
+    .stage-transition-overlay.show::before { animation: raysSpin 16s linear infinite; }
     @keyframes raysSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
     .stage-transition-text {
       position: relative; margin: 0; padding: 0 16px; text-align: center; white-space: pre-line;
       font-size: var(--fs-5); font-weight: 700; line-height: 1.2; letter-spacing: 4px; color: var(--gold); text-shadow: var(--o4);
       transform: scale(0.2); opacity: 0;
     }
-    .stage-transition-text.pop { animation: stagePop var(--pop-dur, .85s) steps(8) forwards; }
+    .stage-transition-text.pop { animation: stagePop var(--pop-dur, .85s) cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
     @keyframes stagePop { 0% { transform: scale(0.2); opacity: 0; } 25% { transform: scale(1.3); opacity: 1; } 75% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.9); opacity: 0; } }
 
     /* 칼 궤적 */
     .pixel-sword-slash {
       position: absolute; pointer-events: none; z-index: 45; height: 32px; overflow: visible; display: flex; align-items: center; transform-origin: 0px 16px;
-      animation: swordSlashSwipe 0.3s steps(6) forwards;
+      animation: swordSlashSwipe 0.3s cubic-bezier(0.08, 0.82, 0.17, 1) forwards;
     }
     @keyframes swordSlashSwipe {
       0% { clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%); transform: rotate(var(--slash-angle, 0deg)) scaleY(0.4); opacity: 0; }
@@ -501,10 +504,10 @@
       position: relative; display: flex; align-items: center; gap: 10px; padding: 6px 8px;
       border-style: solid; border-color: transparent; border-width: 8px 8px 12px; border-image: var(--fr-plain) 4 fill / 8px / 0 stretch; image-rendering: pixelated;
     }
-    .upgrade-card { cursor: pointer; border-image-source: var(--fr-paper); border-image-slice: 4 4 6 fill; border-image-width: 8px 8px 12px; animation: cardFlyIn 0.35s steps(5) both; transition: transform .08s; }
+    .upgrade-card { cursor: pointer; border-image-source: var(--fr-paper); border-image-slice: 4 4 6 fill; border-image-width: 8px 8px 12px; animation: cardFlyIn 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) both; transition: transform .08s; }
     .upgrade-card:hover { transform: translateY(-3px); border-image-source: var(--fr-gold); }
     .upgrade-card:active { transform: translateY(2px); }
-    .upgrade-card.selected { animation: cardSelect 0.3s steps(4) forwards; }
+    .upgrade-card.selected { animation: cardSelect 0.3s ease-out forwards; }
     .upgrade-card:nth-child(1) { animation-delay: 0.05s; }
     .upgrade-card:nth-child(2) { animation-delay: 0.14s; }
     .upgrade-card:nth-child(3) { animation-delay: 0.23s; }
@@ -527,13 +530,13 @@
     .upgrade-stacked-tag { color: var(--orange); font-weight: 700; }
     .inventory-level-badge { padding: 1px 4px; font-weight: 700; line-height: 1.2; background: var(--gold); color: #3a1f14; box-shadow: 0 0 0 2px var(--line); }
     .trait-fly-icon { position: fixed; z-index: 3000; pointer-events: none; display: flex; align-items: center; justify-content: center;
-      transition: top 0.55s steps(10), left 0.55s steps(10), width 0.55s steps(10), height 0.55s steps(10), opacity 0.5s steps(5) 0.05s; }
+      transition: top 0.55s cubic-bezier(0.5, -0.3, 0.35, 1.4), left 0.55s cubic-bezier(0.5, -0.3, 0.35, 1.4), width 0.55s ease, height 0.55s ease, opacity 0.5s ease 0.05s; }
     .trait-fly-icon .ico { width: 100%; height: 100%; }
 
     /* ---------- 게임 방법 ---------- */
     .guide-modal { display: flex; flex-direction: column; }
     .guide-viewport { width: 100%; overflow: hidden; border-style: solid; border-color: transparent; border-width: 8px; border-image: var(--fr-plain) 4 fill / 8px / 0 stretch; image-rendering: pixelated; }
-    .guide-track { display: flex; transition: transform .3s steps(6); }
+    .guide-track { display: flex; transition: transform .3s cubic-bezier(0.25, 1, 0.5, 1); }
     .guide-slide { min-width: 100%; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
     .guide-slide b { font-size: var(--fs-1); color: var(--apple); }
     .guide-text { margin: 0; color: var(--text-soft); text-align: left; line-height: 1.7; }
@@ -550,7 +553,7 @@
     }
     .mini-apple.gold { background-image: var(--spr-mini-gold); }
     .mini-apple.bomb { background-image: var(--spr-mini-bomb); }
-    .mini-apple.demo-highlight { animation: pickBlink .35s steps(1) infinite; }
+    .mini-apple.demo-highlight { background-image: var(--spr-mini-sel); animation: hintBob 0.5s ease-in-out infinite alternate; }
     .fever-demo { padding: 4px 12px; font-size: var(--fs-2); font-weight: 700; color: var(--gold); text-shadow: var(--o2); display: flex; align-items: center; gap: 8px; }
     .guide-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
     #guide-page { font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -572,7 +575,7 @@
       background: #0d1130; color: #fff4dc; text-align: center;
     }
     @media screen and (orientation: portrait) { body.mobile-mode .rotate-device-overlay { display: flex; } }
-    .rotate-phone-icon { width: 72px; height: 72px; animation: phoneRotate 1.6s steps(4) infinite alternate; }
+    .rotate-phone-icon { width: 72px; height: 72px; animation: phoneRotate 1.6s ease-in-out infinite alternate; }
     @keyframes phoneRotate { 0%, 40% { transform: rotate(0deg); } 80%, 100% { transform: rotate(90deg); } }
     .rotate-text { font-size: var(--fs-2); font-weight: 700; color: var(--gold); text-shadow: var(--o2); }
     .rotate-subtext { color: #c8b08a; }
@@ -583,16 +586,16 @@
     #fx-canvas { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; height: 100dvh; pointer-events: none; z-index: 2500; image-rendering: pixelated; }
     .screen-fx { position: fixed; inset: 0; pointer-events: none; z-index: 950; opacity: 0; transition: opacity .4s; }
     .danger-vignette { background: radial-gradient(ellipse at center, transparent 52%, rgba(213, 0, 0, 0.45) 100%); }
-    body.low-hp .danger-vignette { opacity: 1; animation: dangerPulse 0.9s steps(3) infinite alternate; }
+    body.low-hp .danger-vignette { opacity: 1; animation: dangerPulse 0.9s ease-in-out infinite alternate; }
     @keyframes dangerPulse { from { opacity: 0.5; } to { opacity: 1; } }
     .fever-vignette { background: radial-gradient(ellipse at center, transparent 48%, rgba(255, 109, 0, 0.30) 82%, rgba(255, 23, 68, 0.5) 100%); }
-    body.fever-on .fever-vignette { opacity: 1; animation: feverGlow 0.5s steps(2) infinite alternate; }
+    body.fever-on .fever-vignette { opacity: 1; animation: feverGlow 0.5s ease-in-out infinite alternate; }
     @keyframes feverGlow { from { opacity: 0.65; } to { opacity: 1; } }
-    body.low-hp .hp-bar-bg { animation: hpLowPulse 0.45s steps(2) infinite alternate; }
+    body.low-hp .hp-bar-bg { animation: hpLowPulse 0.45s ease-in-out infinite alternate; }
     @keyframes hpLowPulse { to { filter: brightness(1.4) drop-shadow(0 0 4px #ff4545); } }
 
     /* 게임 오버: 보드가 흑백이 되고 사과가 우수수 떨어짐 */
-    body.dying .game-container { filter: grayscale(0.9) brightness(0.85); transition: filter 0.6s steps(4); }
+    body.dying .game-container { filter: grayscale(0.9) brightness(0.85); transition: filter 0.6s ease; }
     body.dying .apple:not(.cleared), body.dying .elite-giant-apple { animation: appleFall 0.95s cubic-bezier(0.55, 0, 0.9, 0.45) var(--fd, 0ms) forwards; }
     @keyframes appleFall {
       0% { transform: translateY(0) rotate(0deg); }
@@ -605,7 +608,7 @@
        ========================================================================== */
     @media (max-width: 980px), (max-height: 550px) {
       body { padding: 4px; }
-      .game-container { padding: 2px 6px 0 !important; max-height: 98dvh; }
+      .game-container { padding: 2px 6px 0 !important; max-height: 98dvh; margin-right: 0; }
       .header-bar { margin-bottom: 2px; gap: 4px; }
       .btn-header { min-height: 28px; padding: 0 2px; }
       .btn-header span { display: none; }
@@ -633,12 +636,14 @@
     }
     @media (prefers-reduced-motion: reduce) {
       .title-wave span, .shine::after, .target-progress-fill::after, .deco-item, .pixel-apple-big { animation: none; }
+      .bg-cloud { animation-play-state: paused; }
     }
   </style>
 </head>
 <body>
 
   <canvas id="bg-scene"></canvas>
+  <div id="bg-clouds"></div>
   <canvas id="fx-canvas"></canvas>
   <div class="screen-fx danger-vignette"></div>
   <div class="screen-fx fever-vignette"></div>
@@ -937,6 +942,8 @@
     const $ = id => document.getElementById(id);
     // CSS의 '기기를 가로로 회전해주세요' 오버레이와 같은 조건
     const portraitQuery = window.matchMedia('screen and (orientation: portrait)');
+    // CSS의 작은 화면용 압축 레이아웃과 같은 조건
+    const compactQuery = window.matchMedia('(max-width: 980px), (max-height: 550px)');
 
     // 설정(테마/효과음/이펙트 품질)과 최고 기록은 브라우저에 저장
     const settings = {
@@ -1498,8 +1505,8 @@
       },
 
       // 도화선이 달린 폭탄 스프라이트
-      bomb(n) {
-        const pal = this.APPLE_PAL.bomb;
+      bomb(n, over = {}) {
+        const pal = { ...this.APPLE_PAL.bomb, ...over };
         const g = this.blank(n, n);
         const top = Math.max(2, Math.round(n * 0.22));
         const cx = n / 2 - 0.3, cy = top + (n - top) / 2, r = (n - top) / 2;
@@ -1702,7 +1709,7 @@
     // ===== 픽셀 과수원 배경: 저해상도 캔버스에 그린 뒤 화면 크기로 확대 (낮/밤) =====
     const scene = {
       canvas: null, ctx: null, base: null, px: 4, w: 0, h: 0, tick: 0, timer: null, dark: false,
-      clouds: [], stars: [], flies: [],
+      stars: [], flies: [],
       DAY: {
         sky: ['#5aaeea', '#6dbdf0', '#84cbf3', '#9fd8f5', '#bce5f7', '#d6f0f8'],
         sun: '#fff3b0', sunRing: '#ffe27a', cloud: '#ffffff', cloudLo: '#d9eefa',
@@ -1731,6 +1738,7 @@
         this.dark = !!dark;
         this.build();
         this.draw();
+        this.loop();
       },
       resize() {
         this.w = Math.ceil(window.innerWidth / this.px);
@@ -1741,11 +1749,11 @@
         this.draw();
         this.loop();
       },
-      // 구름 이동·별 반짝임은 화려하게 모드에서만, 초당 10번만 다시 그림
+      // 밤하늘 별 반짝임·반딧불만 캔버스로 다시 그림 (화려하게 모드, 초당 10번). 낮 풍경은 정지 화면
       loop() {
         clearInterval(this.timer);
         this.timer = null;
-        if (document.hidden || settings.fx === 'low') return;
+        if (!this.dark || document.hidden || settings.fx === 'low') return;
         this.timer = setInterval(() => { this.tick++; this.draw(); }, 100);
       },
 
@@ -1846,17 +1854,16 @@
         }
 
         this.base = c;
+        this.buildClouds(P);
         // 움직이는 요소 초기 배치
         const r2 = this.rnd(99);
-        this.clouds = Array.from({ length: 5 }, (_, i) => ({ x: r2() * w, y: Math.round(h * (0.06 + r2() * 0.34)), s: 0.6 + r2() * 0.9, v: 0.05 + r2() * 0.08 }));
         this.stars = Array.from({ length: Math.round(w * horizon / 180) }, () => ({ x: Math.floor(r2() * w), y: Math.floor(r2() * horizon * 0.9), p: Math.floor(r2() * 40) }));
         this.flies = Array.from({ length: Math.max(6, Math.round(w / 25)) }, () => ({ x: r2() * w, y: groundY - 10 + r2() * (h - groundY + 6), p: r2() * 6.28 }));
       },
 
       draw() {
         if (!this.base) return;
-        const { ctx, w, h } = this;
-        const P = this.dark ? this.NIGHT : this.DAY;
+        const { ctx } = this;
         ctx.drawImage(this.base, 0, 0);
         const t = this.tick;
         if (this.dark) {
@@ -1873,18 +1880,36 @@
             ctx.fillStyle = `rgba(240, 255, 170, ${0.4 + 0.6 * glow})`; ctx.fillRect(x, y, 1, 1);
           });
         }
-        this.clouds.forEach(cl => {
-          const x = Math.round(((cl.x + t * cl.v) % (w + 40)) - 20), y = cl.y, s = cl.s;
-          const parts = [[0, 0, 5], [6, -2, 6], [13, 0, 5], [5, 2, 5]];
+      },
+
+      // 구름: 작은 픽셀 캔버스를 만들어 CSS 애니메이션으로 화면을 가로질러 흘려보냄
+      buildClouds(P) {
+        const layer = $('bg-clouds');
+        layer.innerHTML = '';
+        const rand = this.rnd(99), px = this.px;
+        const parts = [[0, 0, 5], [6, -2, 6], [13, 0, 5], [5, 2, 5]];
+        for (let i = 0; i < 5; i++) {
+          const s = 0.6 + rand() * 0.9;
+          const ox = Math.ceil(5 * s) + 1, oy = Math.ceil(8 * s) + 1;
+          const cw = ox + Math.ceil(18 * s) + 2, ch = oy + Math.ceil(7 * s) + 2;
+          const c = document.createElement('canvas');
+          c.width = cw; c.height = ch;
+          const g = c.getContext('2d');
           parts.forEach(([dx, dy, r]) => {
             const rr = Math.round(r * s);
             for (let yy = -rr; yy <= rr; yy++) for (let xx = -rr; xx <= rr; xx++) {
               if (xx * xx + yy * yy > rr * rr) continue;
-              ctx.fillStyle = yy > rr * 0.35 ? P.cloudLo : P.cloud;
-              ctx.fillRect(x + Math.round(dx * s) + xx, y + Math.round(dy * s) + yy, 1, 1);
+              g.fillStyle = yy > rr * 0.35 ? P.cloudLo : P.cloud;
+              g.fillRect(ox + Math.round(dx * s) + xx, oy + Math.round(dy * s) + yy, 1, 1);
             }
           });
-        });
+          const speed = 6 + rand() * 10;                       // CSS px / 초
+          const dur = (window.innerWidth + cw * px) / speed;
+          c.className = 'bg-cloud';
+          c.style.cssText = `top:${(Math.round(this.h * (0.06 + rand() * 0.34)) - oy) * px}px;width:${cw * px}px;height:${ch * px}px;`
+            + `--cw:${cw * px}px;animation-duration:${dur.toFixed(1)}s;animation-delay:${(-rand() * dur).toFixed(1)}s`;
+          layer.appendChild(c);
+        }
       }
     };
 
@@ -1921,6 +1946,7 @@
           this.set('--spr-mini', P.url(P.apple(12, P.APPLE_PAL.red)));
           this.set('--spr-mini-gold', P.url(P.apple(12, P.APPLE_PAL.gold)));
           this.set('--spr-mini-bomb', P.url(P.bomb(12)));
+          this.set('--spr-mini-sel', P.url(P.apple(12, this.selected(P.APPLE_PAL.red, '#ffe14d'))));
           this.set('--spr-boss', P.url(P.apple(24, P.APPLE_PAL.red)));
           const btn = (fill, hi, lo, depthColor) => P.frame({ k: 4, line: '#2a1610', fill, hi, lo, depth: 2, depthColor }).url;
           this.set('--fr-red', btn('#e0303b', '#ff7b7b', '#9e1b2a', '#6e1220'));
@@ -1937,10 +1963,21 @@
 
       // 보드 사과 크기(px)에 맞춰 정확히 2배 확대되는 스프라이트를 만듦
       boardSprites(px) {
-        const P = pixelArt, n = Math.round(px / 2);
-        this.set('--spr-apple', P.url(P.apple(n, P.APPLE_PAL.red)));
-        this.set('--spr-gold', P.url(P.apple(n, P.APPLE_PAL.gold)));
+        const P = pixelArt, A = P.APPLE_PAL, n = Math.round(px / 2);
+        this.set('--spr-apple', P.url(P.apple(n, A.red)));
+        this.set('--spr-gold', P.url(P.apple(n, A.gold)));
         this.set('--spr-bomb', P.url(P.bomb(n)));
+        this.set('--spr-apple-sel', P.url(P.apple(n, this.selected(A.red, '#ffe14d'))));
+        this.set('--spr-gold-sel', P.url(P.apple(n, this.selected(A.gold, '#ffffff'))));
+        this.set('--spr-bomb-sel', P.url(P.bomb(n, this.selected(A.bomb, '#ffe14d'))));
+        this.set('--spr-apple-hint', P.url(P.apple(n, this.selected(A.red, '#7cf27c'))));
+        this.set('--spr-gold-hint', P.url(P.apple(n, this.selected(A.gold, '#7cf27c'))));
+        this.set('--spr-bomb-hint', P.url(P.bomb(n, this.selected(A.bomb, '#7cf27c'))));
+      },
+
+      // 선택·힌트 사과: 외곽선을 밝은 색으로, 몸통은 한 단계씩 밝게
+      selected(pal, line) {
+        return { ...pal, line, deep: pal.shadow, shadow: pal.base, base: pal.light };
       }
     };
 
@@ -2222,6 +2259,7 @@
         scene.loop(); // 가볍게 모드에서는 배경 구름·별 애니메이션을 멈춤
         $('btn-fx-high').classList.toggle('active', level === 'high');
         $('btn-fx-low').classList.toggle('active', level === 'low');
+        document.body.classList.toggle('fx-lite', level === 'low');
         if (!silent) {
           playTone([[520, 0], [780, 0.06]], 'triangle', 0.12, 0.14);
           const { x, y } = fx.center($(level === 'high' ? 'btn-fx-high' : 'btn-fx-low'));
@@ -2411,17 +2449,26 @@
           || (this.currentMode === 'mobile' && portraitQuery.matches);
       },
 
-      // 사과 크기·간격·숫자 크기와 그 크기에 딱 맞는 스프라이트를 적용 (모바일이거나 화면이 낮으면 작게)
+      // 화면에 들어가는 한 사과를 크게: 점수판 높이·여백을 재서 칸 크기를 정하고, 그 크기에 딱 맞는 스프라이트와 숫자 크기를 적용
       applySizing() {
         const root = document.documentElement.style;
-        const config = this.modes[this.currentMode];
-        const availableHeight = window.innerHeight || document.documentElement.clientHeight;
-        const small = this.currentMode === 'mobile' || availableHeight < 550;
-        const size = small ? 22 : parseInt(config.appleSize, 10);
+        const compact = compactQuery.matches;
+        const box = $('game-container'), wrap = $('board-wrapper');
+        const sum = (el, ...props) => { const cs = getComputedStyle(el); return props.reduce((t, k) => t + (parseFloat(cs[k]) || 0), 0); };
+        const availW = window.innerWidth - sum(document.body, 'paddingLeft', 'paddingRight')
+          - sum(box, 'borderLeftWidth', 'borderRightWidth', 'paddingLeft', 'paddingRight')
+          - sum(wrap, 'paddingLeft', 'paddingRight') - sum(box, 'marginRight') - 8;   // 데스크톱은 오른쪽 밖 콤보 간판 자리(margin-right)
+        const availH = window.innerHeight - sum(document.body, 'paddingTop', 'paddingBottom')
+          - (box.offsetHeight - wrap.offsetHeight) - sum(wrap, 'paddingTop', 'paddingBottom') - (compact ? 4 : 56);   // 피버 배너·스티커 여유
+        const fit = gap => Math.min((availW + gap) / this.cols, (availH + gap) / this.rows) - gap;
+        let gap = this.currentMode === 'mobile' ? 3 : 8;
+        let size = fit(gap);
+        if (size < 36 && gap > 4) { gap = 4; size = fit(gap); }
+        size = Math.max(18, Math.min(52, Math.floor(size / 2) * 2));
         root.setProperty('--apple-size', `${size}px`);
-        root.setProperty('--apple-gap', small ? '3px' : config.appleGap);
-        root.setProperty('--apple-font', small ? 'var(--fs-1)' : 'var(--fs-2)');
-        root.setProperty('--apple-outline', small ? 'var(--o1)' : 'var(--o2)');
+        root.setProperty('--apple-gap', `${gap}px`);
+        root.setProperty('--apple-font', size >= 42 ? 'var(--fs-2)' : size >= 30 ? '18px' : 'var(--fs-1)');
+        root.setProperty('--apple-outline', size >= 30 ? 'var(--o2)' : 'var(--o1)');
         art.boardSprites(size);
       },
 
@@ -3524,7 +3571,12 @@
       }
     });
 
-    window.addEventListener('resize', () => game.positionGiantApple());
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      game.positionGiantApple();
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => { game.applySizing(); game.positionGiantApple(); }, 120);
+    });
 
     fx.init();
     scene.init();
@@ -3534,6 +3586,7 @@
     ui.refreshBest();
     game.applySizing();
     game.renderBoard();
+    document.fonts.ready.then(() => game.applySizing()); // 폰트가 적용된 뒤 점수판 높이로 다시 계산
   </script>
 </body>
 </html>
