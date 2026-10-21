@@ -212,7 +212,7 @@
     .game-container {
       position: relative; max-width: 100vw; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 12px; align-items: start; padding: 8px 12px 14px;
       border-style: solid; border-color: transparent; border-width: 8px 8px 12px; border-image: var(--fr-paper) 4 4 6 fill / 8px 8px 12px / 0 stretch; image-rendering: pixelated;
-      will-change: translate; /* 화면 흔들림을 다시 그리기 없이 GPU에서 처리 */
+      will-change: translate, scale; /* 화면 흔들림·'쿵' 효과를 다시 그리기 없이 GPU에서 처리 */
       margin-right: 148px;    /* 오른쪽 밖 콤보 간판까지 한 덩어리로 가운데 정렬 */
     }
     .game-container.fever-mode { animation: feverFrame 0.4s steps(2) infinite; }
@@ -483,19 +483,6 @@
     .stage-transition-text.pop { animation: stagePop var(--pop-dur, .85s) cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
     @keyframes stagePop { 0% { transform: scale(0.2); opacity: 0; } 25% { transform: scale(1.3); opacity: 1; } 75% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.9); opacity: 0; } }
 
-    /* 칼 궤적 */
-    .pixel-sword-slash {
-      position: absolute; pointer-events: none; z-index: 45; height: 32px; overflow: visible; display: flex; align-items: center; transform-origin: 0px 16px;
-      animation: swordSlashSwipe 0.3s cubic-bezier(0.08, 0.82, 0.17, 1) forwards;
-    }
-    @keyframes swordSlashSwipe {
-      0% { clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%); transform: rotate(var(--slash-angle, 0deg)) scaleY(0.4); opacity: 0; }
-      20% { clip-path: polygon(0% 0%, 50% 0%, 40% 100%, 0% 100%); opacity: 1; transform: rotate(var(--slash-angle, 0deg)) scaleY(1.35); }
-      50% { clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%); opacity: 1; transform: rotate(var(--slash-angle, 0deg)) scaleY(1.1); }
-      80% { clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 20% 100%); opacity: 0.85; }
-      100% { clip-path: polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%); opacity: 0; transform: rotate(var(--slash-angle, 0deg)) scaleY(0.2); }
-    }
-    .pixel-sword-slash svg { width: 100%; height: 100%; image-rendering: pixelated; shape-rendering: crispEdges; }
 
     /* ---------- 특성 카드 ---------- */
     .upgrade-modal { max-width: 480px; }
@@ -1078,6 +1065,13 @@
       },
       feverEnd() { playSweep('triangle', 880, 220, 0.4, 0.12); },
       bossHit() { playNoise({ dur: 0.1, vol: 0.22, type: 'bandpass', from: 1600, to: 400, q: 2 }); },
+      // 칼이 사과를 가르는 '챙' 금속음 + 과즙 소리 (많이 벨수록 높고 길게)
+      shing(power) {
+        const f = 2300 + power * 900;
+        playTone([[f, 0], [f * 0.94, 0.14]], 'triangle', 0.3 + power * 0.15, 0.06);
+        playTone([[f * 2.01, 0]], 'sine', 0.22, 0.035, 0.01);
+        playNoise({ dur: 0.09, vol: 0.14, type: 'lowpass', from: 1100, to: 200, delay: 0.03 });
+      },
       fanfare() {
         [[523.25, 0], [659.25, 0.1], [783.99, 0.2], [1046.5, 0.3], [1318.51, 0.45]].forEach(([f, d]) => playTone([[f, 0]], 'square', 0.3, 0.08, d));
         playTone([[1046.5, 0]], 'triangle', 0.8, 0.12, 0.45);
@@ -1135,7 +1129,7 @@
         const ctx = this.ctx;
         ctx.clearRect(0, 0, this.w, this.h);
         const ambient = this.ambient(dt);
-        const alive = [];
+        const alive = [], top = [];
         for (const p of this.parts) {
           if (p.delay > 0) { p.delay -= dt; alive.push(p); continue; }
           p.life -= dt;
@@ -1146,9 +1140,10 @@
           p.x += p.vx * dt;
           p.y += p.vy * dt;
           p.rot += p.vr * dt;
-          this.draw(ctx, p);
+          if (p.top) top.push(p); else this.draw(ctx, p);
           alive.push(p);
         }
+        top.forEach(p => this.draw(ctx, p)); // 칼날·베는 선은 갈라진 사과 위에
         ctx.globalAlpha = 1;
         this.parts = alive;
         this.updateShake(dt);
@@ -1232,6 +1227,65 @@
             ctx.fillRect(0, 0, this.w, this.h);
             break;
           }
+          case 'blade': {
+            // 초승달 칼날: 앞부분이 빠르게 뻗은 뒤 꼬리가 따라오며 가늘어짐. 바깥 빛 → 칼날 색 → 흰 심을 겹쳐 그림
+            const e = 1 - k;
+            const head = Math.min(1, e / 0.3), tail = Math.max(0, (e - 0.3) / 0.7);
+            if (head - tail < 0.01) break;
+            const dx = p.x2 - p.x1, dy = p.y2 - p.y1, len = Math.hypot(dx, dy) || 1;
+            const nx = -dy / len, ny = dx / len, thin = 1 - tail * 0.7, N = 14;
+            ctx.globalCompositeOperation = 'lighter';
+            p.layers.forEach(([color, scale, alpha]) => {
+              ctx.globalAlpha = alpha * Math.min(1, k * 2);
+              ctx.fillStyle = color;
+              ctx.beginPath();
+              for (let i = 0; i <= N; i++) {
+                const f = i / N, u = tail + (head - tail) * f;
+                const off = p.bulge * Math.sin(Math.PI * u) + p.width * scale * Math.sin(Math.PI * f) * thin;
+                ctx.lineTo(p.x1 + dx * u + nx * off, p.y1 + dy * u + ny * off);
+              }
+              for (let i = N; i >= 0; i--) {
+                const f = i / N, u = tail + (head - tail) * f;
+                const off = p.bulge * Math.sin(Math.PI * u) - p.width * scale * Math.sin(Math.PI * f) * thin * 0.35;
+                ctx.lineTo(p.x1 + dx * u + nx * off, p.y1 + dy * u + ny * off);
+              }
+              ctx.closePath();
+              ctx.fill();
+            });
+            ctx.globalCompositeOperation = 'source-over';
+            break;
+          }
+          case 'cut': {
+            // 베는 순간 번쩍이는 가는 선 → 굵어지며 사라짐
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = k;
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 2 + (1 - k) * p.size;
+            ctx.beginPath();
+            ctx.moveTo(p.x1, p.y1);
+            ctx.lineTo(p.x2, p.y2);
+            ctx.stroke();
+            ctx.globalCompositeOperation = 'source-over';
+            break;
+          }
+          case 'half': {
+            // 반으로 갈라진 사과: 미리 잘라 둔 반쪽 그림을 회전시켜 찍음
+            const c = p.img, hs = c.width / 2;
+            ctx.globalAlpha = Math.min(1, k * 3);
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.drawImage(c, -hs, -hs);
+            ctx.restore();
+            break;
+          }
+          case 'splat': {
+            // 판에 튄 과즙 자국 (픽셀 덩어리, 천천히 옅어짐)
+            ctx.globalAlpha = 0.5 * Math.min(1, k * 1.6);
+            ctx.fillStyle = p.color;
+            p.blobs.forEach(([bx, by, br]) => ctx.fillRect(Math.round((p.x + bx - br) / 2) * 2, Math.round((p.y + by - br) / 2) * 2, Math.round(br) * 2, Math.round(br) * 2));
+            break;
+          }
         }
       },
 
@@ -1282,20 +1336,123 @@
         this.burst(x, y, { kind: 'spark', count: 6 * density, colors: ['#ffd600', '#ff9100', '#ffffff'], speed: [220, 460], size: [2, 3], life: [0.15, 0.3], gravity: 150, drag: 4 });
         if (!colors) this.burst(x, y - 8, { count: 2 * density, colors: ['#43a047', '#7cb342'], speed: [60, 170], size: [4, 6], life: [0.5, 0.9], gravity: 520 });
       },
-      slashTrail(x1, y1, x2, y2) {
-        const n = this.lite ? 5 : 16;
-        const normal = Math.atan2(y2 - y1, x2 - x1) + Math.PI / 2;
+      // ===== 베기 연출 =====
+      sprites: {}, halfCache: {},
+      setSprites(urls) {
+        Object.entries(urls).forEach(([key, url]) => { const img = new Image(); img.src = url; this.sprites[key] = img; });
+        this.halfCache = {};
+      },
+      // 사과 그림을 자른 선(cut 각도) 한쪽만 남기고 단면(과육)을 칠한 반쪽 그림. 같은 칼질 안에서는 재사용
+      halfSprite(type, size, cut, side) {
+        const img = this.sprites[type] || this.sprites.normal;
+        if (!img || !img.complete) return null;
+        const key = `${type}|${size}|${cut.toFixed(3)}|${side}`;
+        if (this.halfCache[key]) return this.halfCache[key];
+        if (Object.keys(this.halfCache).length > 60) this.halfCache = {};
+        const c = document.createElement('canvas');
+        c.width = c.height = Math.ceil(size);
+        const g = c.getContext('2d');
+        g.imageSmoothingEnabled = false;
+        g.translate(size / 2, size / 2);
+        g.rotate(cut);
+        g.beginPath();
+        g.rect(-size, side > 0 ? 0 : -size, size * 2, size);
+        g.clip();
+        g.rotate(-cut);
+        g.drawImage(img, -size / 2, -size / 2, size, size);
+        g.rotate(cut);
+        g.fillStyle = type === 'gold' ? '#fff6c2' : type === 'bomb' ? '#ff9100' : '#fff0d0';
+        g.fillRect(-size * 0.34, side > 0 ? 0 : -2, size * 0.68, 2);
+        return (this.halfCache[key] = c);
+      },
+      // 콤보 단계별 칼날 색: 기본(빨강) → 3콤보(불꽃) → 6콤보(번개) → 피버(무지개)
+      BLADE: {
+        base: { outer: '#ff1744', mid: '#ffd23f', ghost: [['#ff1744', '#ff9100'], ['#ff1744', '#ff9100']], spark: ['#ff1744', '#ffd23f', '#ffffff', '#ff9100'] },
+        hot: { outer: '#ff6d00', mid: '#ffe14d', ghost: [['#ff3d00', '#ffd23f'], ['#ff6d00', '#fff3a6']], spark: ['#ff6d00', '#ffd23f', '#ffffff', '#fff3a6'] },
+        storm: { outer: '#651fff', mid: '#40c4ff', ghost: [['#7c4dff', '#18ffff'], ['#d500f9', '#40c4ff']], spark: ['#7c4dff', '#40c4ff', '#ffffff', '#b388ff', '#18ffff'] },
+        fever: { outer: '#ff1744', mid: '#ffd23f', ghost: [['#00e676', '#40c4ff'], ['#e040fb', '#ff9100']], spark: ['#ff1744', '#ff9100', '#ffd23f', '#00e676', '#40c4ff', '#e040fb', '#ffffff'] }
+      },
+      // 칼질 한 번: 겹겹이 빛나는 칼날 + 잔상 + 번쩍이는 선 + 불꽃. power(0~1)가 클수록 굵고 화려하게
+      slash(x1, y1, x2, y2, tier, power) {
+        const T = this.BLADE[tier] || this.BLADE.base;
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+        const ext = 30 + power * 30;
+        const ax = x1 - ux * ext, ay = y1 - uy * ext, bx = x2 + ux * ext, by = y2 + uy * ext;
+        const width = 9 + power * 12;
+        const bulge = (Math.random() < 0.5 ? -1 : 1) * Math.min(28, len * 0.12 + 6);
+        const blade = (delay, scale, outer, mid, life) => this.add({
+          kind: 'blade', top: true, x: 0, y: 0, x1: ax, y1: ay, x2: bx, y2: by, width: width * scale, bulge, life, delay,
+          layers: [[outer, 1.7, 0.35], [mid, 1, 0.85], ['#ffffff', 0.42, 1]]
+        });
+        blade(0, 1, T.outer, T.mid, 0.3);
+        if (!this.lite) {
+          blade(0.04, 0.62, T.ghost[0][0], T.ghost[0][1], 0.26);
+          if (power > 0.3 || tier !== 'base') blade(0.08, 0.42, T.ghost[1][0], T.ghost[1][1], 0.24);
+        }
+        this.add({ kind: 'cut', top: true, x: 0, y: 0, x1: ax, y1: ay, x2: bx, y2: by, size: 10 + power * 10, color: '#ffffff', life: 0.16 });
+        // 칼날 양옆으로 칼이 지나가는 순서대로 튀는 불꽃
+        const n = Math.round((this.lite ? 6 : 18) * (1 + power * 1.5));
+        const normal = Math.atan2(dy, dx) + Math.PI / 2;
         for (let i = 0; i < n; i++) {
           const t = Math.random();
-          const a = normal + (Math.random() < 0.5 ? 0 : Math.PI) + (Math.random() - 0.5) * 0.9;
-          const sp = this.rand(90, 260);
+          const a = normal + (Math.random() < 0.5 ? 0 : Math.PI) + (Math.random() - 0.5) * 1.1;
+          const sp = this.rand(120, 380) * (1 + power * 0.6);
           this.add({
-            kind: 'spark', x: x1 + (x2 - x1) * t, y: y1 + (y2 - y1) * t,
-            vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 300, drag: 3,
-            size: this.rand(2, 3.5), color: this.pick(['#ff1744', '#ffd600', '#ffffff', '#ff9100']),
-            life: this.rand(0.15, 0.32), delay: t * 0.12
+            kind: 'spark', x: ax + (bx - ax) * t, y: ay + (by - ay) * t, vx: Math.cos(a) * sp + ux * 120, vy: Math.sin(a) * sp + uy * 120,
+            g: 380, drag: 3, size: this.rand(2, 4), color: this.pick(T.spark), life: this.rand(0.18, 0.4), delay: t * 0.08
           });
         }
+        // 칼끝 섬광
+        this.burst(bx, by, { kind: 'star', count: 6 + power * 10, colors: ['#ffffff', T.mid], speed: [60, 220], size: [4, 9], life: [0.25, 0.45], gravity: 0, drag: 3, delay: 0.07 });
+        if (power > 0.45 || tier === 'fever') {
+          const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+          this.ring(mx, my, { radius: 70 + power * 90, width: 6, color: T.mid, life: 0.35, delay: 0.05 });
+          this.flash('#ffffff', 0.12 + power * 0.1, 0.12);
+          this.punch(0.012 + power * 0.01);
+        }
+        if (tier === 'fever' && !this.lite) {
+          // 칼날을 따라 피어오르는 불길
+          for (let i = 0; i < 14; i++) {
+            const t = Math.random();
+            this.add({
+              kind: 'ember', x: ax + (bx - ax) * t, y: ay + (by - ay) * t, vx: this.rand(-40, 40), vy: this.rand(-220, -90), g: -60, drag: 0.6,
+              size: this.rand(4, 8), color: this.pick(['#ff1744', '#ff9100', '#ffd23f']), life: this.rand(0.5, 0.9), delay: t * 0.08
+            });
+          }
+        }
+      },
+      // 사과가 반으로 갈라져 회전하며 날아가고, 과즙이 튀고 판에 자국이 남음
+      sliceApple(el, type, cutAngle, delay, density = 1, halves = true) {
+        const r = el.getBoundingClientRect();
+        const x = r.left + r.width / 2, y = r.top + r.height / 2, sz = r.width;
+        const nx = -Math.sin(cutAngle), ny = Math.cos(cutAngle), ux = Math.cos(cutAngle), uy = Math.sin(cutAngle);
+        if (halves) {
+          [1, -1].forEach(side => {
+            const img = this.halfSprite(type, Math.round(sz), cutAngle, side);
+            if (!img) return;
+            const sp = this.rand(90, 170);
+            this.add({
+              kind: 'half', img, x, y,
+              vx: nx * side * sp + ux * this.rand(40, 120), vy: ny * side * sp + uy * this.rand(40, 120) - this.rand(120, 220),
+              g: 1100, drag: 0.4, rot: 0, vr: side * this.rand(3, 8), life: this.rand(0.75, 1.0), delay
+            });
+          });
+        }
+        const juice = type === 'gold' ? ['#ffd23f', '#fff3a6', '#ffb300'] : type === 'bomb' ? ['#ff9100', '#ffd23f', '#455a64'] : ['#ff4d6d', '#ff8fa3', '#c9184a', '#ffd6dc'];
+        this.burst(x, y, { count: 8 * density, colors: juice, speed: [120, 320], size: [3, 6], life: [0.35, 0.7], gravity: 900, delay });
+        this.burst(x, y, { kind: 'spark', count: 5 * density, colors: juice, speed: [200, 420], size: [2, 3], life: [0.15, 0.3], gravity: 400, drag: 3, delay });
+        this.burst(x, y, { kind: 'star', count: 2, colors: ['#ffffff'], speed: [0, 30], size: [7, 11], life: [0.18, 0.24], gravity: 0, delay });
+        if (type === 'gold') this.sparkle(x, y, '#ffd23f', 6 + 8 * density, 1.3);
+        if (!this.lite) {
+          const blobs = Array.from({ length: 4 }, () => [this.rand(-sz * 0.3, sz * 0.3), this.rand(-sz * 0.25, sz * 0.3), this.rand(sz * 0.06, sz * 0.13)]);
+          this.add({ kind: 'splat', x, y, blobs, color: juice[0], life: 0.9, delay });
+        }
+      },
+      // 큰 베기에서 판이 순간적으로 커졌다 돌아오는 '쿵' 느낌
+      punch(amount) {
+        if (this.lite) return;
+        const el = $('game-container');
+        if (el.animate) el.animate([{ scale: 1 + amount }, { scale: 1 }], { duration: 180, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' });
       },
       explosion(x, y, big = true) {
         this.flash('#ff9100', big ? 0.32 : 0.18);
@@ -1964,9 +2121,11 @@
       // 보드 사과 크기(px)에 맞춰 정확히 2배 확대되는 스프라이트를 만듦
       boardSprites(px) {
         const P = pixelArt, A = P.APPLE_PAL, n = Math.round(px / 2);
-        this.set('--spr-apple', P.url(P.apple(n, A.red)));
-        this.set('--spr-gold', P.url(P.apple(n, A.gold)));
-        this.set('--spr-bomb', P.url(P.bomb(n)));
+        const normal = P.url(P.apple(n, A.red)), gold = P.url(P.apple(n, A.gold)), bomb = P.url(P.bomb(n));
+        this.set('--spr-apple', normal);
+        this.set('--spr-gold', gold);
+        this.set('--spr-bomb', bomb);
+        fx.setSprites({ normal, gold, bomb });
         this.set('--spr-apple-sel', P.url(P.apple(n, this.selected(A.red, '#ffe14d'))));
         this.set('--spr-gold-sel', P.url(P.apple(n, this.selected(A.gold, '#ffffff'))));
         this.set('--spr-bomb-sel', P.url(P.bomb(n, this.selected(A.bomb, '#ffe14d'))));
@@ -2021,10 +2180,9 @@
       setTimeout(() => el.remove(), 680);
     }
 
-    function triggerRedPixelSlash(boxRect, isDiag, sRect, eRect, r1, c1, r2, c2) {
+    // 칼질: 선택 모양에 맞춰 칼 궤적을 정해 캔버스에 그리고, 사과를 가를 선(화면 좌표)을 돌려줌
+    function triggerRedPixelSlash(boxRect, isDiag, sRect, eRect, r1, c1, r2, c2, tier = 'base', power = 0) {
       const bRect = $('board-wrapper').getBoundingClientRect();
-      const slashEl = document.createElement('div');
-      slashEl.className = 'pixel-sword-slash';
 
       let x1, y1, x2, y2;
       if (isDiag && sRect && eRect) {
@@ -2057,41 +2215,11 @@
         y1 = yCenter; y2 = yCenter;
       }
 
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      const dist = Math.hypot(dx, dy) || 40;
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-      const extend = 24;
-      const ux = dx / dist;
-      const uy = dy / dist;
-      const startX = x1 - ux * extend;
-      const startY = y1 - uy * extend;
-      const totalLen = dist + extend * 2;
-
-      slashEl.style.left = `${startX}px`;
-      slashEl.style.top = `${startY - 16}px`;
-      slashEl.style.width = `${totalLen}px`;
-      slashEl.style.height = `32px`;
-      slashEl.style.setProperty('--slash-angle', `${angle}deg`);
-      slashEl.style.transformOrigin = `0px 16px`;
-      slashEl.style.transform = `rotate(${angle}deg)`;
-
-      slashEl.innerHTML = `
-        <svg viewBox="0 0 160 32" preserveAspectRatio="none">
-          <path d="M 0,16 L 12,8 L 35,4 L 75,3 L 125,5 L 160,16 L 125,27 L 75,29 L 35,28 L 12,24 Z" fill="#7f0000" />
-          <path d="M 4,16 L 16,10 L 38,6 L 75,5 L 120,7 L 152,16 L 120,25 L 75,27 L 38,26 L 16,22 Z" fill="#ff1744" />
-          <polygon points="25,12 55,9 90,9 120,11 135,16 120,21 90,23 55,23 25,20" fill="#ff5252" />
-          <polygon points="40,14 75,12 110,13 125,16 110,19 75,20 40,18" fill="#ffd600" />
-          <line x1="20" y1="16" x2="140" y2="16" stroke="#ffffff" stroke-width="3" stroke-dasharray="6 3" stroke-linecap="square" />
-          <rect x="45" y="2" width="3" height="3" fill="#ffd600" /><rect x="85" y="1" width="4" height="4" fill="#ff1744" /><rect x="115" y="3" width="3" height="3" fill="#ffffff" />
-        </svg>
-      `;
-
-      $('board-wrapper').appendChild(slashEl);
-      fx.slashTrail(bRect.left + x1, bRect.top + y1, bRect.left + x2, bRect.top + y2);
+      const ax = bRect.left + x1, ay = bRect.top + y1, bx = bRect.left + x2, by = bRect.top + y2;
+      fx.slash(ax, ay, bx, by, tier, power);
       playSlashSound((game.isFever ? 1.25 : 1) + Math.min(game.combo, 10) * 0.04);
-      setTimeout(() => slashEl.remove(), 320);
+      sfx.shing(power);
+      return { x1: ax, y1: ay, x2: bx, y2: by, angle: Math.atan2(by - ay, bx - ax) };
     }
 
     function flyIconToTraitButton(originEl, iconName) {
@@ -3357,7 +3485,10 @@
       const canClear = sel && ((game.isFever && sel.count > 0) || sel.valid);
 
       if (canClear) {
-        triggerRedPixelSlash(curBoxRect, sel.isDiag, sel.sRect, sel.eRect, sel.r1, sel.c1, sel.r2, sel.c2);
+        const tier = game.isFever ? 'fever' : game.combo >= 6 ? 'storm' : game.combo >= 3 ? 'hot' : 'base';
+        const power = Math.min(1, Math.max(0, (sel.cells.length - 2) / 8) + (game.isFever ? 0.3 : 0));
+        const cut = triggerRedPixelSlash(curBoxRect, sel.isDiag, sel.sRect, sel.eRect, sel.r1, sel.c1, sel.r2, sel.c2, tier, power);
+        const cutLen2 = ((cut.x2 - cut.x1) ** 2 + (cut.y2 - cut.y1) ** 2) || 1;
 
         const bombCell = sel.cells.find(c => c.type === 'bomb');
         if (bombCell && !game.isFever) {
@@ -3368,19 +3499,22 @@
         // 한 번에 많이 벨수록 사과당 파편 수를 줄여 전체 양을 일정하게 유지
         const density = sel.cells.length > 10 ? Math.max(0.3, 10 / sel.cells.length) : 1;
 
-        sel.cells.forEach(c => {
+        // 칼날이 지나가는 순서대로 네 묶음으로 갈라짐 (묶음마다 한 번에 숨겨서 화면 다시 계산을 줄임)
+        const hideGroups = [[], [], [], []];
+        const halfLimit = fx.lite ? 12 : 28;
+        sel.cells.forEach((c, i) => {
           if (!c.cleared) {
             c.cleared = true;
-            c.el.classList.add('exploding');
-            spawnAppleParticles(c.el, c.type === 'gold' ? ['#ffd600', '#fff9c4', '#ff8f00'] : null, density);
-            setTimeout(() => {
-              c.el.classList.add('cleared');
-              c.el.classList.remove('exploding');
-            }, 270);
+            const r = c.el.getBoundingClientRect();
+            const along = Math.min(1, Math.max(0, ((r.left + r.width / 2 - cut.x1) * (cut.x2 - cut.x1) + (r.top + r.height / 2 - cut.y1) * (cut.y2 - cut.y1)) / cutLen2));
+            const group = Math.min(3, Math.floor(along * 4));
+            fx.sliceApple(c.el, c.type, cut.angle, 0.02 + group * 0.025, density, i < halfLimit);
+            hideGroups[group].push(c.el);
 
             game.scheduleAppleRespawn(c, 3000);
           }
         });
+        hideGroups.forEach((els, g) => els.length && setTimeout(() => els.forEach(el => el.classList.add('cleared')), (0.02 + g * 0.025) * 1000));
 
         if (game.giantApple && game.giantApple.hp > 0) {
           game.damageGiantApple(sel.cells.length * 5);
