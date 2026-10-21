@@ -174,6 +174,8 @@
     }
     .title-best { min-height: 18px; margin: 4px 0 6px; display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--gold-lo); }
     .btn-group { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; margin-top: 8px; }
+    .btn-row { display: flex; justify-content: center; gap: 8px; }
+    .btn-sub.btn-ai { border-image-source: var(--fr-green); border-image-repeat: stretch; color: #fff; }
     .title-bg-deco { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
     .deco-item { position: absolute; animation: decoFall 9s linear infinite; }
     .deco-item.d1 { left: 12%; animation-delay: -1s; }
@@ -225,6 +227,23 @@
     }
     @keyframes bannerBlink { 50% { color: var(--gold); } }
     .game-container.fever-mode .fever-banner { display: inline-flex; }
+
+    /* ---------- AI 모드: 픽셀 커서가 직접 드래그 ---------- */
+    [hidden] { display: none !important; }
+    .ai-cursor { position: fixed; left: 0; top: 0; z-index: 3000; pointer-events: none; display: flex; align-items: flex-start; will-change: transform; }
+    .ai-cursor .ico { transform-origin: 2px 2px; transition: transform .08s; }
+    .ai-cursor.press .ico { transform: scale(0.8); }
+    .ai-tag { margin: 18px 0 0 -8px; padding: 0 4px; font-size: var(--fs-1); line-height: 18px; font-weight: 700; color: #fff; background: #24692f; box-shadow: 0 0 0 2px var(--line); }
+    .ai-cursor.press .ai-tag { background: var(--apple); }
+    #btn-ai-speed { display: none; }
+    body.ai-mode #btn-ai-speed { display: inline-flex; }
+    .ai-banner {
+      position: absolute; top: -44px; left: 0; z-index: 50; display: none; white-space: nowrap; align-items: center; gap: 6px; padding: 0 10px; font-weight: 700;
+      border-style: solid; border-color: transparent; border-width: 8px 8px 12px; border-image: var(--fr-green) 4 4 6 fill / 8px 8px 12px / 0 stretch; image-rendering: pixelated;
+      color: #fff; text-shadow: var(--o1);
+    }
+    .ai-moves { color: var(--gold); font-variant-numeric: tabular-nums; }
+    body.ai-mode .ai-banner { display: inline-flex; }
 
     .header-bar { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px; margin-bottom: 6px; }
     .hud-hp, .hud-mid, .hud-buttons { display: flex; align-items: center; gap: 6px; }
@@ -608,6 +627,7 @@
       .board-wrapper::before { border-width: 8px; border-image-width: 8px; }
       .board-wrapper::after { display: none; }
       .fever-banner { top: -40px; }
+      body.ai-mode .ai-banner { display: none; }
       .combo-widget { top: 2px !important; right: 6px !important; width: auto; padding: 0 6px; display: flex; align-items: center; gap: 6px; flex-direction: row; }
       .combo-count { font-size: var(--fs-2); text-shadow: var(--o2); margin: 0; }
       .combo-timer-badge { margin: 0; }
@@ -632,6 +652,7 @@
   <canvas id="bg-scene"></canvas>
   <div id="bg-clouds"></div>
   <canvas id="fx-canvas"></canvas>
+  <div class="ai-cursor" id="ai-cursor" hidden><i class="ico ico-2 ico-cursor"></i><span class="ai-tag">AI</span></div>
   <div class="screen-fx danger-vignette"></div>
   <div class="screen-fx fever-vignette"></div>
 
@@ -835,7 +856,10 @@
 
       <div class="btn-group">
         <button class="btn-action shine" type="button" onclick="game.start(true, true)">게임 시작</button>
-        <button class="btn-sub" type="button" onclick="ui.modal('modal-settings', 1)"><i class="ico ico-2 ico-gear"></i>설정</button>
+        <div class="btn-row">
+          <button class="btn-sub btn-ai" type="button" onclick="ai.start()"><i class="ico ico-2 ico-robot"></i>AI 모드 구경</button>
+          <button class="btn-sub" type="button" onclick="ui.modal('modal-settings', 1)"><i class="ico ico-2 ico-gear"></i>설정</button>
+        </div>
       </div>
     </div>
   </div>
@@ -843,7 +867,7 @@
   <!-- 게임 오버 화면: 과수원 영수증 -->
   <div class="screen-overlay hide" id="screen-over">
     <div class="title-card receipt">
-      <div class="receipt-head"><span>픽셀 과수원</span><span>영수증</span></div>
+      <div class="receipt-head"><span>픽셀 과수원</span><span id="receipt-kind">영수증</span></div>
       <div class="pixel-apple-big"></div>
       <h1 class="big-title over-title">게임 종료</h1>
       <p class="over-desc" id="over-desc">체력이 모두 소진되었습니다!</p>
@@ -851,12 +875,12 @@
       <div class="receipt-rows">
         <div class="receipt-row"><span>최종 점수</span><span class="dots"></span><b id="final-score">0점</b></div>
         <div class="receipt-row"><span>도달 스테이지</span><span class="dots"></span><b id="final-stage">STAGE 1</b></div>
-        <div class="receipt-row"><span>최고 기록</span><span class="dots"></span><b id="best-score">0점</b></div>
+        <div class="receipt-row"><span id="best-label">최고 기록</span><span class="dots"></span><b id="best-score">0점</b></div>
       </div>
       <div class="receipt-foot">이용해 주셔서 감사합니다 ★ 또 오세요</div>
       <div class="over-buttons">
         <button class="btn-action btn-secondary" onclick="ui.toMain()"><i class="ico ico-2 ico-home"></i>메인화면</button>
-        <button class="btn-action shine" onclick="game.start(true, false)"><i class="ico ico-2 ico-retry"></i>다시 도전</button>
+        <button class="btn-action shine" onclick="ui.retry()"><i class="ico ico-2 ico-retry"></i>다시 도전</button>
       </div>
     </div>
   </div>
@@ -864,6 +888,7 @@
   <!-- 인게임 화면 -->
   <div class="game-container" id="game-container">
     <div class="fever-banner" id="fever-banner"><i class="ico ico-fire"></i>BLADE FEVER! 자유 드래그 참격<i class="ico ico-fire"></i></div>
+    <div class="ai-banner" id="ai-banner"><i class="ico ico-robot"></i>AI 자동 플레이<span class="ai-moves" id="ai-moves">베기 0</span></div>
 
     <!-- 우측 콤보 간판 (모바일 가로 환경에서 컴팩트하게 축소됨) -->
     <div class="combo-widget" id="combo-widget">
@@ -891,8 +916,9 @@
 
       <div class="hud-buttons">
         <button class="btn-header px-green" id="btn-trait-icon" onclick="ui.openInventory()"><i class="ico ico-2 ico-star"></i><span>특성</span></button>
+        <button class="btn-header px-green" id="btn-ai-speed" onclick="ai.cycleSpeed()" aria-label="AI 속도 바꾸기"><i class="ico ico-2 ico-robot"></i><span id="ai-speed-label">AI 빠름</span></button>
         <button class="btn-header" onclick="ui.modal('modal-settings', 1)" aria-label="설정"><i class="ico ico-2 ico-gear"></i></button>
-        <button class="btn-header px-red" onclick="game.start(true, false)"><i class="ico ico-2 ico-retry"></i><span>재도전</span></button>
+        <button class="btn-header px-red" onclick="ui.retry()"><i class="ico ico-2 ico-retry"></i><span>재도전</span></button>
         <button class="btn-header" onclick="ui.toMain()"><i class="ico ico-2 ico-home"></i><span>메인</span></button>
       </div>
     </div>
@@ -936,7 +962,8 @@
     const settings = {
       dark: window.matchMedia('(prefers-color-scheme: dark)').matches,
       sound: true,
-      fx: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'low' : 'high'
+      fx: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'low' : 'high',
+      aiSpeed: 1
     };
     try { Object.assign(settings, JSON.parse(localStorage.getItem('apple-game-settings') || '{}')); } catch (e) {}
     function saveSettings() {
@@ -947,6 +974,13 @@
     }
     function saveBest(score) {
       try { localStorage.setItem('apple-game-best', String(score)); } catch (e) {}
+    }
+    // AI 기록은 사람 기록과 따로: 얼마나 멀리(스테이지) 갔는지가 기준
+    function loadAiBest() {
+      try { return { stage: 0, score: 0, ...JSON.parse(localStorage.getItem('apple-game-ai-best') || '{}') }; } catch (e) { return { stage: 0, score: 0 }; }
+    }
+    function saveAiBest(rec) {
+      try { localStorage.setItem('apple-game-ai-best', JSON.stringify(rec)); } catch (e) {}
     }
 
     let audio = null, masterGain = null, noiseBuffer = null, lastPopAt = 0;
@@ -1753,6 +1787,12 @@
         sprout: [
           '............', '............', '..gg....gg..', '.gggg..gggg.', '..gggggggg..', '.....gg.....',
           '.....gg.....', '..nnnnnnnn..', '..nnnnnnnn..', '...nnnnnn...', '............', '............'],
+        robot: [
+          '............', '.....yy.....', '.....aa.....', '..cccccccc..', '.acccccccca.', '.acbbccbbca.',
+          '..cbbccbbc..', '..cccccccc..', '..ccrrrrcc..', '..cccccccc..', '............', '............'],
+        cursor: [
+          '............', '.w..........', '.ww.........', '.www........', '.wwww.......', '.wwwww......',
+          '.wwwwww.....', '.www........', '.w.ww.......', '....ww......', '............', '............'],
         check: [
           '............', '............', '.........g..', '........gg..', '.......gg...', '.g....gg....',
           '.gg..gg.....', '..gggg......', '...gg.......', '............', '............', '............'],
@@ -2396,7 +2436,11 @@
       },
       refreshBest() {
         const best = loadBest();
-        $('title-best').innerHTML = best > 0 ? `<i class="ico ico-2 ico-trophy"></i>최고 기록 ${best}점` : '';
+        const aiBest = loadAiBest();
+        const parts = [];
+        if (best > 0) parts.push(`<i class="ico ico-2 ico-trophy"></i>최고 기록 ${best}점`);
+        if (aiBest.stage > 0) parts.push(`<i class="ico ico-2 ico-robot"></i>AI 최고 STAGE ${aiBest.stage}`);
+        $('title-best').innerHTML = parts.join('&nbsp;');
       },
       updateGuide() {
         $('guide-track').style.transform = `translateX(-${this.guideIdx * 100}%)`;
@@ -2445,7 +2489,12 @@
           { text: 'START!', color: '#4caf50', sound: [[587, 0], [880, 0.08]], dur: 850 }
         ]);
       },
+      retry() {
+        if (ai.on) ai.start();
+        else game.start(true, false);
+      },
       toMain() {
+        ai.stop();
         game.stop();
         document.body.classList.remove('dying');
         this.refreshBest();
@@ -2574,7 +2623,8 @@
       isPaused() {
         return $('modal-inventory').classList.contains('show')
           || $('modal-settings').classList.contains('show')
-          || (this.currentMode === 'mobile' && portraitQuery.matches);
+          || (this.currentMode === 'mobile' && portraitQuery.matches)
+          || (ai.on && document.hidden); // AI 구경 중 다른 탭으로 가면 멈춤
       },
 
       // 화면에 들어가는 한 사과를 크게: 점수판 높이·여백을 재서 칸 크기를 정하고, 그 크기에 딱 맞는 스프라이트와 숫자 크기를 적용
@@ -2828,6 +2878,7 @@
         selectedThree.forEach(item => {
           const card = document.createElement('div');
           card.className = 'upgrade-card';
+          card.dataset.id = item.id;
           card.innerHTML = `
             <div class="upgrade-icon-box"><i class="ico ico-3 ico-${item.icon}"></i></div>
             <div class="upgrade-content">
@@ -3310,13 +3361,29 @@
         fx.shake(16);
         sfx.gameOver();
 
-        const best = loadBest();
-        const isRecord = this.score > best;
-        if (isRecord) saveBest(this.score);
-        $('over-desc').textContent = msg;
+        let isRecord;
         $('final-score').textContent = `${this.score}점`;
         $('final-stage').textContent = `STAGE ${this.stage}`;
-        $('best-score').textContent = `${Math.max(best, this.score)}점`;
+        if (ai.on) {
+          // AI 판: 사람 기록은 건드리지 않고 AI 기록만 (더 먼 스테이지 → 같은 스테이지면 더 높은 점수)
+          const aiBest = loadAiBest();
+          isRecord = this.stage > aiBest.stage || (this.stage === aiBest.stage && this.score > aiBest.score);
+          const rec = isRecord ? { stage: this.stage, score: this.score } : aiBest;
+          if (isRecord) saveAiBest(rec);
+          $('over-desc').textContent = `AI가 STAGE ${this.stage}에서 멈췄어요 · ${ai.summary()}`;
+          $('receipt-kind').textContent = 'AI 도전 기록';
+          $('best-label').textContent = 'AI 최고 기록';
+          $('best-score').textContent = `STAGE ${rec.stage}`;
+          ai.halt();
+        } else {
+          const best = loadBest();
+          isRecord = this.score > best;
+          if (isRecord) saveBest(this.score);
+          $('over-desc').textContent = msg;
+          $('receipt-kind').textContent = '영수증';
+          $('best-label').textContent = '최고 기록';
+          $('best-score').textContent = `${Math.max(best, this.score)}점`;
+        }
         $('record-badge').classList.toggle('show', isRecord);
         this.transitionTimer = setTimeout(() => {
           $('screen-over').classList.remove('hide');
@@ -3452,7 +3519,219 @@
       }
     };
 
+    // ===== AI 모드: 픽셀 커서를 사람처럼 움직여 진짜 포인터 이벤트로 드래그하며 스스로 플레이 =====
+    const ai = {
+      on: false, runId: 0, timer: null, moves: 0, startedAt: 0, x: 0, y: 0,
+      SPEEDS: [
+        { name: '보통', move: 340, drag: 380, pause: 260, pick: 1400 },
+        { name: '빠름', move: 170, drag: 200, pause: 110, pick: 800 },
+        { name: '최대', move: 60, drag: 90, pause: 30, pick: 350 }
+      ],
+      // 특성 고르는 기준: AI는 콤보를 길게 이어가므로 콤보 배율과 생존을 우선 (같은 특성은 겹칠수록 덜 고름)
+      UPGRADE_VALUE: { fever_strike: 10, slow_drain: 9, combo_time: 8, bonus_score: 7, max_hp: 6, gold_apple: 5, emergency_heal: 4, apple_harvest: 3, fast_hint: 0 },
+      get sp() { return this.SPEEDS[settings.aiSpeed] || this.SPEEDS[1]; },
+      get cursorEl() { return $('ai-cursor'); },
+
+      start() {
+        this.stop();
+        this.on = true;
+        this.moves = 0;
+        this.startedAt = Date.now();
+        document.body.classList.add('ai-mode');
+        this.updateLabels();
+        const b = $('board').getBoundingClientRect();
+        this.moveCursor(b.left + b.width / 2, b.top + b.height / 2);
+        this.cursorEl.hidden = false;
+        game.start(true, false);
+        this.schedule(this.runId, 400);
+      },
+      // 결과 화면에서 멈춤 (다시 도전하면 AI가 새 판을 시작)
+      halt() {
+        this.runId++;
+        clearTimeout(this.timer);
+        this.cursorEl.hidden = true;
+        this.cursorEl.classList.remove('press');
+      },
+      stop() {
+        this.halt();
+        this.on = false;
+        document.body.classList.remove('ai-mode');
+      },
+      cycleSpeed() {
+        settings.aiSpeed = (settings.aiSpeed + 1) % this.SPEEDS.length;
+        saveSettings();
+        this.updateLabels();
+        playTone([[520, 0], [680, 0.06]], 'triangle', 0.12, 0.15);
+      },
+      updateLabels() {
+        $('ai-speed-label').textContent = `AI ${this.sp.name}`;
+        $('ai-moves').textContent = `베기 ${this.moves}`;
+      },
+      summary() {
+        const sec = Math.round((Date.now() - this.startedAt) / 1000);
+        return `${Math.floor(sec / 60)}분 ${sec % 60}초 동안 ${this.moves}번 베기`;
+      },
+      schedule(run, ms) {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => this.tick(run), ms);
+      },
+      wait(ms, run) {
+        return new Promise(resolve => setTimeout(() => resolve(run === this.runId), ms));
+      },
+
+      async tick(run) {
+        if (run !== this.runId) return;
+        if (game.isPaused()) return this.schedule(run, 150); // 설정·특성창이 열려 있으면 기다림
+        const shown = id => $(id).classList.contains('show');
+        if (shown('modal-upgrade')) return this.pickUpgrade(run);
+        if (shown('modal-boss-alert')) {
+          await this.press(document.querySelector('#modal-boss-alert .boss-start'), run);
+          return run === this.runId && this.schedule(run, 300);
+        }
+        if (!game.active || game.isPaused() || game.isTransitioning) return this.schedule(run, 150);
+        const move = this.bestMove();
+        if (!move) return this.schedule(run, 200); // 벨 곳이 없으면 사과가 다시 열릴 때까지 대기
+        await this.drag(move, run);
+        if (run === this.runId) this.schedule(run, this.sp.pause);
+      },
+
+      // 판 위의 모든 드래그(시작칸→끝칸)를 updateDrag와 똑같은 규칙으로 따져 가장 좋은 수를 고름
+      bestMove(from = null) {
+        const R = game.rows, C = game.cols, G = game.grid;
+        const live = x => !x.cleared && !x.isGiant;
+        if (game.isFever) {
+          // 피버: 판 전체를 한 번에 (정사각형으로 잡으면 대각선이 되므로 한 줄 덜)
+          if (!G.flat().some(live)) return null;
+          return { r1: 0, c1: 0, r2: R - 1, c2: R === C ? C - 2 : C - 1 };
+        }
+        // 구간 합을 바로 구하는 누적 합: 값 / 개수 / 황금 / 폭탄(곧 터질 것은 가중치 3)
+        const bombWeight = x => x.type === 'bomb' ? (x.bombTime <= 3 ? 3 : 1) : 0;
+        const mk = () => Array.from({ length: R + 1 }, () => new Float64Array(C + 1));
+        const SV = mk(), SN = mk(), SG = mk(), SB = mk();
+        for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+          const x = G[r][c], on = live(x);
+          const add = (S, v) => { S[r + 1][c + 1] = v + S[r][c + 1] + S[r + 1][c] - S[r][c]; };
+          add(SV, on ? x.val : 0);
+          add(SN, on ? 1 : 0);
+          add(SG, on && x.type === 'gold' ? 1 : 0);
+          add(SB, on ? bombWeight(x) : 0);
+        }
+        const box = (S, t, l, b, r) => S[b + 1][r + 1] - S[t][r + 1] - S[b + 1][l] + S[t][l];
+
+        let best = null, bestScore = 0;
+        const pick = (n, g, b, r1, c1, r2, c2) => {
+          // 많이 벨수록, 폭탄과 황금사과가 들어갈수록 좋은 수. 비슷하면 무작위
+          const s = n + b * 8 + g * 3 + Math.random() * 0.5;
+          if (s > bestScore) { bestScore = s; best = { r1, c1, r2, c2 }; }
+        };
+        const evalDrag = (r1, c1, r2, c2) => {
+          const t = Math.min(r1, r2), b = Math.max(r1, r2), l = Math.min(c1, c2), r = Math.max(c1, c2);
+          const rn = box(SN, t, l, b, r);
+          if (!rn) return;
+          const rv = box(SV, t, l, b, r), rg = box(SG, t, l, b, r), rb = box(SB, t, l, b, r);
+          const span = b - t, diag = span === r - l && span > 0;
+          let tn = rn, tv = rv, tg = rg, tb = rb;
+          if (diag) {
+            tn = tv = tg = tb = 0;
+            const sr = Math.sign(r2 - r1), sc = Math.sign(c2 - c1);
+            for (let i = 0; i <= span; i++) {
+              const x = G[r1 + i * sr][c1 + i * sc];
+              if (live(x)) { tn++; tv += x.val; tg += x.type === 'gold' ? 1 : 0; tb += bombWeight(x); }
+            }
+          }
+          // 판정 순서도 updateDrag와 같음: 황금(2칸 이내) → 사각형 합 10 → 대각선 합 10
+          if (tg && Math.max(span, r - l) <= 2 && tn) pick(tn, tg, tb, r1, c1, r2, c2);
+          else if (rv === 10) pick(rn, rg, rb, r1, c1, r2, c2);
+          else if (diag && tv === 10 && tn) pick(tn, tg, tb, r1, c1, r2, c2);
+        };
+        if (from) {
+          for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) evalDrag(from.r, from.c, r, c);
+        } else {
+          for (let r1 = 0; r1 < R; r1++) for (let c1 = 0; c1 < C; c1++)
+            for (let r2 = r1; r2 < R; r2++) for (let c2 = r2 === r1 ? c1 : 0; c2 < C; c2++) evalDrag(r1, c1, r2, c2);
+        }
+        return best;
+      },
+
+      cellPoint(r, c) {
+        const b = game.grid[r][c].el.getBoundingClientRect();
+        return { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+      },
+      moveCursor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.cursorEl.style.transform = `translate3d(${x - 2}px, ${y - 2}px, 0)`; // 화살표 끝(2,2)이 가리키는 점
+      },
+      fire(type, x, y) {
+        const ev = new PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 99, pointerType: 'mouse', isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1 });
+        ev.aiGenerated = true;
+        (document.elementFromPoint(x, y) || document.body).dispatchEvent(ev);
+      },
+      // 부드럽게 가속·감속하며 이동 (드래그 중이면 매 프레임 pointermove)
+      glide(x, y, ms, run, dragging = false) {
+        const x0 = this.x, y0 = this.y, t0 = performance.now();
+        const dur = ms * (0.6 + Math.min(1, Math.hypot(x - x0, y - y0) / 500) * 0.8);
+        return new Promise(resolve => {
+          const step = now => {
+            if (run !== this.runId) return resolve(false);
+            const t = dur > 0 ? Math.min(1, (now - t0) / dur) : 1;
+            const k = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+            this.moveCursor(x0 + (x - x0) * k, y0 + (y - y0) * k);
+            if (dragging) this.fire('pointermove', this.x, this.y);
+            if (t < 1) requestAnimationFrame(step);
+            else resolve(true);
+          };
+          requestAnimationFrame(step);
+        });
+      },
+      async drag(m, run) {
+        const a = this.cellPoint(m.r1, m.c1);
+        if (!await this.glide(a.x, a.y, this.sp.move, run)) return;
+        if (!game.active || game.isPaused()) return; // 커서가 가는 사이 스테이지가 끝났으면 취소
+        this.fire('pointerdown', a.x, a.y);
+        if (!game.drag) return;
+        this.cursorEl.classList.add('press');
+        let b = this.cellPoint(m.r2, m.c2);
+        let ok = await this.glide(b.x, b.y, this.sp.drag, run, true);
+        // 끄는 사이 폭발·리스폰으로 합이 틀어졌으면 같은 시작칸에서 다른 끝칸을 찾아 고쳐 잡음
+        if (ok && game.drag && !game.isFever && !game.currentSelection?.valid) {
+          const alt = this.bestMove(game.dragStart);
+          if (alt) {
+            b = this.cellPoint(alt.r2, alt.c2);
+            ok = await this.glide(b.x, b.y, this.sp.drag * 0.6, run, true);
+          }
+        }
+        this.cursorEl.classList.remove('press');
+        if (!ok) return;
+        this.fire('pointerup', b.x, b.y);
+        this.moves++;
+        this.updateLabels();
+      },
+
+      // 특성 카드: 잠깐 읽는 척한 뒤 가장 좋은 카드를 눌러 고름
+      async pickUpgrade(run) {
+        const cards = [...document.querySelectorAll('#upgrade-card-list .upgrade-card')];
+        if (!cards.length || cards.some(c => c.classList.contains('selected'))) return this.schedule(run, 200);
+        const value = c => (this.UPGRADE_VALUE[c.dataset.id] ?? 1) - (game.acquiredUpgrades[c.dataset.id]?.level || 0) * 1.5;
+        const card = cards.reduce((a, b) => (value(b) > value(a) ? b : a));
+        if (!await this.wait(this.sp.pick * 0.4, run)) return;
+        if (await this.press(card, run)) this.schedule(run, 400);
+      },
+      // 버튼·카드 위로 커서를 옮겨 클릭
+      async press(el, run) {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        if (!await this.glide(r.left + r.width / 2, r.top + r.height / 2, this.sp.pick * 0.6, run)) return false;
+        this.cursorEl.classList.add('press');
+        const ok = await this.wait(90, run);
+        this.cursorEl.classList.remove('press');
+        if (ok) el.click();
+        return ok;
+      }
+    };
+
     window.addEventListener('pointerdown', e => {
+      if (ai.on && !e.aiGenerated) return; // AI 모드에서는 AI 커서만 사과를 벰
       const apple = getAppleFromPoint(e.clientX, e.clientY);
       if (!game.active || game.isPaused() || !apple || e.target.closest('.overlay') || e.target.closest('.stage-transition-overlay')) return;
 
@@ -3463,10 +3742,12 @@
     });
 
     window.addEventListener('pointermove', e => {
+      if (ai.on && !e.aiGenerated) return;
       if (game.drag && game.active) updateDrag(e);
     });
 
     window.addEventListener('pointerup', e => {
+      if (ai.on && !e.aiGenerated) return;
       if (!game.drag || !game.active) return;
       if (e && e.clientX !== undefined && e.clientY !== undefined) updateDrag(e);
 
