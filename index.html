@@ -363,7 +363,7 @@
     .apple.gold-apple.hint-target { background-image: var(--spr-gold-hint); }
     .apple.bomb-apple.hint-target { background-image: var(--spr-bomb-hint); }
     @keyframes hintBob { to { transform: translateY(-3px); } }
-    .apple.respawning { visibility: visible !important; z-index: 15; animation: appleGrow 0.36s cubic-bezier(0.18, 0.89, 0.32, 1.35) forwards; }
+    .apple.respawning { z-index: 15; animation: appleGrow 0.36s cubic-bezier(0.18, 0.89, 0.32, 1.35) forwards; }
     @keyframes appleGrow { 0% { transform: scale(0.2) translateY(30%); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
     .apple.exploding { pointer-events: none; z-index: 20; animation: applePop 0.27s cubic-bezier(0.2, 0.8, 0.3, 1) forwards; }
     @keyframes applePop { 0% { transform: scale(1); filter: brightness(1.6); } 40% { transform: scale(1.35); filter: brightness(3); } 100% { transform: scale(0.2); opacity: 0; } }
@@ -614,7 +614,7 @@
        ========================================================================== */
     @media (max-width: 980px), (max-height: 550px) {
       body { padding: 4px; }
-      .game-container { padding: 2px 6px 0 !important; max-height: 98dvh; margin-right: 0; }
+      .game-container { padding: 2px 6px 0 !important; max-height: 98dvh; margin-right: 92px; } /* 오른쪽 밖 작은 콤보 간판 자리 */
       .header-bar { margin-bottom: 2px; gap: 4px; }
       .btn-header { min-height: 28px; padding: 0 2px; }
       .btn-header span { display: none; }
@@ -628,10 +628,11 @@
       .board-wrapper::after { display: none; }
       .fever-banner { top: -40px; }
       body.ai-mode .ai-banner { display: none; }
-      .combo-widget { top: 2px !important; right: 6px !important; width: auto; padding: 0 6px; display: flex; align-items: center; gap: 6px; flex-direction: row; }
-      .combo-count { font-size: var(--fs-2); text-shadow: var(--o2); margin: 0; }
-      .combo-timer-badge { margin: 0; }
-      .combo-progress-bg { width: 32px; }
+      /* 콤보 간판은 판 오른쪽 밖에 작게 (판 안 위쪽에 두면 점수·메뉴 버튼을 가림) */
+      .combo-widget { top: 2px; right: -96px; width: 84px; padding: 2px; }
+      .combo-title { letter-spacing: 0; }
+      .combo-count { font-size: var(--fs-2); text-shadow: var(--o2); margin: 2px 0; }
+      .combo-timer-badge { margin-bottom: 2px; }
       .callout { font-size: var(--fs-2); text-shadow: var(--o2); }
       .callout.t-amazing, .callout.t-insane { font-size: var(--fs-3); }
       .stage-transition-text { font-size: var(--fs-4); text-shadow: var(--o3); }
@@ -640,6 +641,13 @@
       .title-card { padding: 10px 14px 8px; margin-top: 30px; }
       .modal { padding: 8px 10px; }
       .modal-header h3 { font-size: var(--fs-1); }
+    }
+    /* 아주 좁은 화면은 판 밖에 간판 자리를 낼 수 없으므로 판 안 오른쪽 위에 가로로 */
+    @media (max-width: 600px) {
+      .game-container { margin-right: 0; }
+      .combo-widget { top: 2px; right: 6px; width: auto; padding: 0 6px; display: flex; align-items: center; gap: 6px; }
+      .combo-count, .combo-timer-badge { margin: 0; }
+      .combo-progress-bg { width: 32px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .title-wave span, .shine::after, .target-progress-fill::after, .deco-item, .pixel-apple-big { animation: none; }
@@ -968,6 +976,10 @@
     try { Object.assign(settings, JSON.parse(localStorage.getItem('apple-game-settings') || '{}')); } catch (e) {}
     function saveSettings() {
       try { localStorage.setItem('apple-game-settings', JSON.stringify(settings)); } catch (e) {}
+    }
+    // 숨긴 화면·창 안의 버튼에 포커스가 남아 있으면 Enter·스페이스가 그 버튼을 다시 누르므로 풀어 줌
+    function releaseFocus(container) {
+      if (container && container.contains(document.activeElement)) document.activeElement.blur();
     }
     function loadBest() {
       try { return Number(localStorage.getItem('apple-game-best')) || 0; } catch (e) { return 0; }
@@ -1379,7 +1391,7 @@
       // 사과 그림을 자른 선(cut 각도) 한쪽만 남기고 단면(과육)을 칠한 반쪽 그림. 같은 칼질 안에서는 재사용
       halfSprite(type, size, cut, side) {
         const img = this.sprites[type] || this.sprites.normal;
-        if (!img || !img.complete) return null;
+        if (!img || !img.complete || size < 2) return null;
         const key = `${type}|${size}|${cut.toFixed(3)}|${side}`;
         if (this.halfCache[key]) return this.halfCache[key];
         if (Object.keys(this.halfCache).length > 60) this.halfCache = {};
@@ -2402,6 +2414,7 @@
       modal(id, show) {
         const el = $(id);
         if (el) el.classList.toggle('show', !!show);
+        if (!show) releaseFocus(el);
         fx.wake(); // 일시정지가 풀리면 피버 불씨 등 지속 효과 재개
       },
       theme(dark, silent = false) {
@@ -2504,6 +2517,7 @@
         this.modal('modal-guide', 0);
         this.modal('modal-boss-alert', 0);
         $('screen-over').classList.add('hide');
+        releaseFocus($('screen-over'));
         $('screen-title').classList.remove('hide');
       },
       openInventory() {
@@ -2678,6 +2692,8 @@
         document.body.classList.remove('dying');
         $('screen-title').classList.add('hide');
         $('screen-over').classList.add('hide');
+        releaseFocus($('screen-title'));
+        releaseFocus($('screen-over'));
         ui.modal('modal-upgrade', 0);
         ui.modal('modal-inventory', 0);
         ui.modal('modal-boss-alert', 0);
@@ -2831,7 +2847,7 @@
       },
 
       checkStageProgress() {
-        if (this.score >= this.targetScore) {
+        if (this.active && this.score >= this.targetScore) {
           this.active = false;
           this.endFeverMode();
           clearInterval(this.hpTimer);
@@ -3043,7 +3059,7 @@
               const cell = this.grid[startR + dr][startC + dc];
               cell.isGiant = true;
               cell.cleared = true;
-              cell.el.style.visibility = 'hidden';
+              cell.el.classList.add('cleared');
             }
           }
 
@@ -3145,13 +3161,11 @@
           for (let dr = 0; dr < 2; dr++) {
             for (let dc = 0; dc < 2; dc++) {
               const cell = this.grid[startR + dr][startC + dc];
-              cell.isGiant = false;
-              cell.el.style.visibility = 'visible';
+              cell.isGiant = false; // 빈 칸으로 두었다가 3초 뒤 새 사과
               this.scheduleAppleRespawn(cell, 3000);
             }
           }
-
-          this.checkStageProgress();
+          // 스테이지 클리어 판정은 참격 처리가 다 끝난 뒤 pointerup에서 한 번만
         }
       },
 
@@ -3230,8 +3244,7 @@
           if (this.giantApple && this.giantApple.hp > 0) {
             this.damageGiantApple(20);
           }
-
-          this.checkStageProgress();
+          // 스테이지 클리어 판정은 참격 처리가 다 끝난 뒤 pointerup에서 한 번만
         } else {
           fx.flash('#d50000', 0.35, 0.3);
           this.updateHp(-20);
@@ -3846,6 +3859,16 @@
       game.currentSelection = null;
     });
 
+    // 터치가 취소되면(시스템 제스처·알림 등) 베지 않고 드래그만 끝냄
+    window.addEventListener('pointercancel', e => {
+      if (ai.on && !e.aiGenerated) return;
+      if (!game.drag) return;
+      game.drag = false;
+      game.dragStart = null;
+      game.clearEffects();
+      game.currentSelection = null;
+    });
+
     function updateDrag(e) {
       if (!game.dragStart) return;
       const el = getAppleFromPoint(e.clientX, e.clientY);
@@ -3977,13 +4000,19 @@
     }
 
     window.addEventListener('keydown', e => {
+      const isConfirmKey = e.key === 'Enter' || e.key === ' ';
       if ($('modal-guide').classList.contains('show')) {
         if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') ui.moveGuide(-1);
         if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') ui.moveGuide(1);
-        if ((e.key === 'Enter' || e.key === ' ') && ui.hasReadGuide) ui.finishGuideAndStart();
+        if (isConfirmKey && ui.hasReadGuide) { e.preventDefault(); ui.finishGuideAndStart(); }
       } else if ($('modal-boss-alert').classList.contains('show')) {
-        if (e.key === 'Enter' || e.key === ' ') ui.startBossStage();
+        if (isConfirmKey) { e.preventDefault(); ui.startBossStage(); } // 포커스된 다른 버튼까지 눌리지 않게
       }
+    });
+    // 마우스·터치로 누른 버튼은 포커스를 바로 풀어 둠 (키보드로 고른 버튼은 그대로)
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (btn && e.detail > 0) btn.blur();
     });
 
     let resizeTimer = null;
