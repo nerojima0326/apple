@@ -2331,6 +2331,14 @@
       }
     }
 
+    // ===== 밸런스: 스테이지가 오를수록 체력이 빨리 닳고 클리어 회복은 줄어듦 (후반에 끝이 나도록) =====
+    const BALANCE = {
+      DRAIN_RAMP: 0.10,   // 스테이지마다 체력 감소 속도 +10%
+      HEAL_BASE: 34, HEAL_STEP: 2, HEAL_MIN: 10, // 클리어 회복: 34 - 2×스테이지 (최소 10)
+      SLOW_DRAIN_MAX: 3,    // '여유로운 시간' 최대 중첩
+      EMERGENCY_MAX: 2      // '긴급 소생 실드' 최대 중첩 (스테이지당 최대 +70)
+    };
+
     const STAGE_EVENTS = [
       {
         id: 'bomb_crisis',
@@ -2389,7 +2397,8 @@
       {
         id: 'slow_drain', icon: 'hourglass', tag: '생존', tagClass: 'tag-survival',
         name: '여유로운 시간 (소모 완화)', desc: '초당 HP 자연 감소 속도 <span class="upgrade-stat-highlight">30% 둔화</span>',
-        apply: () => { game.drainIntervalMs = Math.floor(game.drainIntervalMs / 0.7); }
+        apply: () => { game.drainIntervalMs = Math.floor(game.drainIntervalMs / 0.7); },
+        isMaxed: () => (game.acquiredUpgrades.slow_drain?.level || 0) >= BALANCE.SLOW_DRAIN_MAX
       },
       {
         id: 'fever_strike', icon: 'fire', tag: '콤보', tagClass: 'tag-combo',
@@ -2399,7 +2408,8 @@
       {
         id: 'emergency_heal', icon: 'shield', tag: '생존', tagClass: 'tag-survival',
         name: '긴급 소생 실드 (불사조)', desc: 'HP가 25 이하로 떨어지면 즉시 <span class="upgrade-stat-highlight">+35 HP</span> 회복 (스테이지당 1회)',
-        apply: () => { game.emergencyHealAmount += 35; }
+        apply: () => { game.emergencyHealAmount += 35; },
+        isMaxed: () => (game.acquiredUpgrades.emergency_heal?.level || 0) >= BALANCE.EMERGENCY_MAX
       },
       {
         id: 'apple_harvest', icon: 'wheat', tag: '점수', tagClass: 'tag-score',
@@ -2627,6 +2637,15 @@
       getComboDuration(comboCount) {
         const base = Math.max(1.8, 7.5 - (comboCount - 1) * 0.45);
         return base + this.comboBonus;
+      },
+
+      // 지금 스테이지의 체력 1 감소 간격(ms)
+      getDrainInterval() {
+        const base = this.currentEvent?.id === 'blitz_rush' ? this.drainIntervalMs / 2 : this.drainIntervalMs;
+        return Math.max(150, Math.floor(base / (1 + (this.stage - 1) * BALANCE.DRAIN_RAMP)));
+      },
+      getClearHeal(clearedStage) {
+        return Math.max(BALANCE.HEAL_MIN, BALANCE.HEAL_BASE - clearedStage * BALANCE.HEAL_STEP);
       },
 
       getNextTargetIncrement(stageNum) {
@@ -2861,6 +2880,12 @@
           const clearedStage = this.stage;
           this.stage++;
           this.shieldUsedThisStage = false;
+          if (ai.on) {
+            const aiBest = loadAiBest();
+            if (this.stage > aiBest.stage || (this.stage === aiBest.stage && this.score > aiBest.score)) {
+              saveAiBest({ stage: this.stage, score: this.score });
+            }
+          }
           this.targetScore += this.getNextTargetIncrement(this.stage);
 
           if (this.stage % 3 === 0 && this.stage !== 5) {
@@ -2869,7 +2894,7 @@
             this.currentEvent = null;
           }
 
-          this.updateHp(30);
+          this.updateHp(this.getClearHeal(clearedStage));
           this.updateHeaderUI();
 
           this.renderBoard();
@@ -2974,9 +2999,7 @@
                 this.active = true;
                 this.resetHint();
 
-                const drainRate = (this.currentEvent && this.currentEvent.id === 'blitz_rush')
-                  ? Math.floor(this.drainIntervalMs / 2)
-                  : this.drainIntervalMs;
+                const drainRate = this.getDrainInterval();
 
                 clearInterval(this.hpTimer);
                 this.hpTimer = setInterval(() => { if (!this.isPaused()) this.updateHp(-1); }, drainRate);
@@ -3253,6 +3276,7 @@
       },
 
       scheduleAppleRespawn(cell, delay = 3000) {
+        cell.respawnAt = performance.now() + delay;
         setTimeout(() => {
           if (!this.active || !cell.cleared || cell.isGiant) return;
           const newCell = this.createAppleCell(cell.r, cell.c);
@@ -3608,19 +3632,22 @@
         if (run === this.runId) this.schedule(run, this.sp.pause);
       },
 
-      // 판 위의 모든 드래그(시작칸→끝칸)를 updateDrag와 똑같은 규칙으로 따져 가장 좋은 수를 고름
+      // 판 위의 모든 드래그(시작칸→끝칸)를 updateDrag와 똑같은 규칙으로 따져
+      // '초당 점수'(예상 점수 ÷ 커서가 움직이는 데 걸릴 시간)가 가장 높은 수를 고름
       bestMove(from = null) {
-        const R = game.rows, C = game.cols, G = game.grid;
+        const R = game.rows, C = game.cols, G = game.grid, sp = this.sp, now = performance.now();
         const live = x => !x.cleared && !x.isGiant;
         if (game.isFever) {
           // 피버: 판 전체를 한 번에 (정사각형으로 잡으면 대각선이 되므로 한 줄 덜)
           if (!G.flat().some(live)) return null;
           return { r1: 0, c1: 0, r2: R - 1, c2: R === C ? C - 2 : C - 1 };
         }
-        // 구간 합을 바로 구하는 누적 합: 값 / 개수 / 황금 / 폭탄(곧 터질 것은 가중치 3)
+        // 손을 뗄 때까지 다시 자라날 빈칸이 끼어 있으면 합이 10을 넘어 MISS가 됨
+        const horizon = (from ? sp.drag * 0.84 : (sp.move + sp.drag) * 1.4) + 150;
+        const soon = x => x.cleared && !x.isGiant && x.respawnAt > 0 && x.respawnAt - now < horizon;
         const bombWeight = x => x.type === 'bomb' ? (x.bombTime <= 3 ? 3 : 1) : 0;
         const mk = () => Array.from({ length: R + 1 }, () => new Float64Array(C + 1));
-        const SV = mk(), SN = mk(), SG = mk(), SB = mk();
+        const SV = mk(), SN = mk(), SG = mk(), SB = mk(), SS = mk();
         for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
           const x = G[r][c], on = live(x);
           const add = (S, v) => { S[r + 1][c + 1] = v + S[r][c + 1] + S[r + 1][c] - S[r][c]; };
@@ -3628,14 +3655,42 @@
           add(SN, on ? 1 : 0);
           add(SG, on && x.type === 'gold' ? 1 : 0);
           add(SB, on ? bombWeight(x) : 0);
+          add(SS, soon(x) ? 1 : 0);
         }
         const box = (S, t, l, b, r) => S[b + 1][r + 1] - S[t][r + 1] - S[b + 1][l] + S[t][l];
 
+        // 화면 좌표: 칸 간격으로 커서 이동 시간을 glide()와 같은 식으로 어림
+        const p0 = this.cellPoint(0, 0), pe = this.cellPoint(R - 1, C - 1);
+        const cw = C > 1 ? (pe.x - p0.x) / (C - 1) : 0, ch = R > 1 ? (pe.y - p0.y) / (R - 1) : 0;
+        const glideT = (ms, d) => ms * (0.6 + Math.min(1, d / 500) * 0.8);
+        const reach = (r, c) => from ? 0 : glideT(sp.move, Math.hypot(p0.x + c * cw - this.x, p0.y + r * ch - this.y));
+        const sweep = (r1, c1, r2, c2) => glideT(sp.drag, Math.hypot((c2 - c1) * cw, (r2 - r1) * ch));
+
+        // 실제 점수 공식(pointerup)과 같은 값
+        const mult = game.currentEvent?.id === 'blitz_rush' ? 3 : 1;
+        const perApple = 1 + game.bonusScorePerApple;
+        const comboPart = game.combo * game.comboMultiplier;
+        const boss = game.giantApple && game.giantApple.hp > 0 ? game.giantApple.hp : 0;
+        const gain = (n, g, b) => (n * perApple + comboPart + (g ? 15 : 0)) * mult
+          + b * 40 + (boss && n * 5 >= boss ? 100 : 0);
+
         let best = null, bestScore = 0;
-        const pick = (n, g, b, r1, c1, r2, c2) => {
-          // 많이 벨수록, 폭탄과 황금사과가 들어갈수록 좋은 수. 비슷하면 무작위
-          const s = n + b * 8 + g * 3 + Math.random() * 0.5;
-          if (s > bestScore) { bestScore = s; best = { r1, c1, r2, c2 }; }
+        const pick = (n, g, b, r1, c1, r2, c2, anyCorner) => {
+          let s1 = r1, t1 = c1, s2 = r2, t2 = c2;
+          let t = reach(r1, c1);
+          if (!from) {
+            // 반대쪽 끝에서 시작하는 게 더 가까우면 거꾸로 그음 (같은 칸이 잡힘)
+            const back = reach(r2, c2);
+            if (back < t) { t = back; [s1, t1, s2, t2] = [r2, c2, r1, c1]; }
+            // 사각형 합 10은 어느 모서리 쌍으로 잡아도 같음
+            if (anyCorner) {
+              const a = reach(r1, c2), z = reach(r2, c1);
+              if (a < t) { t = a; [s1, t1, s2, t2] = [r1, c2, r2, c1]; }
+              if (z < t) { t = z; [s1, t1, s2, t2] = [r2, c1, r1, c2]; }
+            }
+          }
+          const s = gain(n, g, b) / (t + sweep(s1, t1, s2, t2) + sp.pause + 80) * (1 + Math.random() * 0.04);
+          if (s > bestScore) { bestScore = s; best = { r1: s1, c1: t1, r2: s2, c2: t2 }; }
         };
         const evalDrag = (r1, c1, r2, c2) => {
           const t = Math.min(r1, r2), b = Math.max(r1, r2), l = Math.min(c1, c2), r = Math.max(c1, c2);
@@ -3643,19 +3698,21 @@
           if (!rn) return;
           const rv = box(SV, t, l, b, r), rg = box(SG, t, l, b, r), rb = box(SB, t, l, b, r);
           const span = b - t, diag = span === r - l && span > 0;
-          let tn = rn, tv = rv, tg = rg, tb = rb;
+          let tn = rn, tg = rg, tb = rb, tv = rv, ts = 0;
           if (diag) {
             tn = tv = tg = tb = 0;
             const sr = Math.sign(r2 - r1), sc = Math.sign(c2 - c1);
             for (let i = 0; i <= span; i++) {
               const x = G[r1 + i * sr][c1 + i * sc];
               if (live(x)) { tn++; tv += x.val; tg += x.type === 'gold' ? 1 : 0; tb += bombWeight(x); }
+              else if (soon(x)) ts++;
             }
           }
           // 판정 순서도 updateDrag와 같음: 황금(2칸 이내) → 사각형 합 10 → 대각선 합 10
-          if (tg && Math.max(span, r - l) <= 2 && tn) pick(tn, tg, tb, r1, c1, r2, c2);
-          else if (rv === 10) pick(rn, rg, rb, r1, c1, r2, c2);
-          else if (diag && tv === 10 && tn) pick(tn, tg, tb, r1, c1, r2, c2);
+          // (황금은 합과 상관없으니 새 사과가 끼어도 괜찮지만, 합 10은 곧 자랄 칸이 있으면 버림)
+          if (tg && Math.max(span, r - l) <= 2 && tn) pick(tn, tg, tb, r1, c1, r2, c2, false);
+          else if (rv === 10 && !box(SS, t, l, b, r)) pick(rn, rg, rb, r1, c1, r2, c2, !diag);
+          else if (diag && tv === 10 && tn && !ts) pick(tn, tg, tb, r1, c1, r2, c2, false);
         };
         if (from) {
           for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) evalDrag(from.r, from.c, r, c);
@@ -3716,6 +3773,11 @@
         }
         this.cursorEl.classList.remove('press');
         if (!ok) return;
+        if (game.drag && !game.isFever && !game.currentSelection?.valid) {
+          this.fire('pointercancel', b.x, b.y);
+          this.cancels = (this.cancels || 0) + 1;
+          return;
+        }
         this.fire('pointerup', b.x, b.y);
         this.moves++;
         this.updateLabels();
@@ -3725,7 +3787,11 @@
       async pickUpgrade(run) {
         const cards = [...document.querySelectorAll('#upgrade-card-list .upgrade-card')];
         if (!cards.length || cards.some(c => c.classList.contains('selected'))) return this.schedule(run, 200);
-        const value = c => (this.UPGRADE_VALUE[c.dataset.id] ?? 1) - (game.acquiredUpgrades[c.dataset.id]?.level || 0) * 1.5;
+        const danger = Math.max(0, 1 - game.hp / game.maxHp); // 0(만피) ~ 1(빈사)
+        const SURVIVE = { max_hp: 8, emergency_heal: 5, slow_drain: 3 };
+        const value = c => (this.UPGRADE_VALUE[c.dataset.id] ?? 1)
+          - (game.acquiredUpgrades[c.dataset.id]?.level || 0) * 1.5
+          + (SURVIVE[c.dataset.id] || 0) * danger;
         const card = cards.reduce((a, b) => (value(b) > value(a) ? b : a));
         if (!await this.wait(this.sp.pick * 0.4, run)) return;
         if (await this.press(card, run)) this.schedule(run, 400);
