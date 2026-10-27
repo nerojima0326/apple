@@ -244,6 +244,57 @@
     }
     .ai-moves { color: var(--gold); font-variant-numeric: tabular-nums; }
 
+    /* ---------- 변형 규칙 (중력·합체·리듬) ---------- */
+    .mods-wrapper { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; margin-top: 8px; }
+    .mods-wrapper small { font-weight: 400; opacity: 0.75; }
+    .mods-group { display: flex; gap: 6px; justify-content: center; }
+    .btn-mod {
+      display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 2px 8px; font-weight: 700; line-height: 1; color: var(--text-light); text-shadow: var(--o1);
+      background: none; border-style: solid; border-color: transparent; border-width: 8px 8px 12px; border-image: var(--fr-wood) 4 4 6 fill / 8px 8px 12px / 0 repeat; image-rendering: pixelated;
+      filter: grayscale(0.6) brightness(0.9); transition: transform .08s;
+    }
+    .btn-mod:hover { transform: translateY(-2px); }
+    .btn-mod.active { border-image-source: var(--fr-gold); border-image-repeat: stretch; color: var(--line); text-shadow: none; filter: none; }
+    .mods-desc { min-height: 1em; font-size: var(--fs-1); line-height: 1.6; text-align: center; font-weight: 700; color: var(--text-soft); }
+
+    /* 중력: 위에서 떨어져 내려옴 */
+    .apple.dropping { animation: appleDrop calc(0.14s + var(--fall, 1) * 0.045s) cubic-bezier(0.5, 0, 0.9, 0.6) both; }
+    @keyframes appleDrop {
+      from { transform: translateY(calc(var(--fall, 1) * -1 * (var(--apple-size) + var(--apple-gap, 0px)))); }
+      85% { transform: translateY(2px) scaleY(0.92); }
+      to { transform: none; }
+    }
+    /* 합체 */
+    .apple.merging { z-index: 19; transition: transform .16s ease-in, opacity .16s; transform: translate(var(--mx), var(--my)) scale(0.6); opacity: 0.6; }
+    .apple.merged { filter: drop-shadow(0 0 0 #b388ff) drop-shadow(0 0 3px #b388ff); }
+    .apple.merged::before {
+      content: "×" attr(data-w); position: absolute; top: -6px; left: -6px; z-index: 6; padding: 1px 3px; pointer-events: none;
+      font-size: var(--fs-1); line-height: 1; color: #fff; text-shadow: none; background: #7b3fe4; box-shadow: 0 0 0 2px var(--line);
+    }
+    .apple.merge-pop { animation: mergePop .35s cubic-bezier(0.18, 0.89, 0.32, 1.4); }
+    @keyframes mergePop { 0% { transform: scale(0.6); } 60% { transform: scale(1.25); } 100% { transform: none; } }
+    .selection-box.merge-ready { background: rgba(179, 136, 255, 0.2); box-shadow: 0 0 0 2px var(--line), inset 0 0 0 2px #b388ff, 0 0 0 4px #b388ff; animation: none; }
+    /* 리듬: 박자 표시 */
+    .beat-meter { display: none; gap: 3px; align-items: center; }
+    body.rhythm-on .beat-meter { display: inline-flex; }
+    .beat-meter i { width: 10px; height: 10px; background: var(--line); opacity: 0.35; transition: transform .06s; }
+    .beat-meter i.on { opacity: 1; background: #ff5d8f; transform: scale(1.4); box-shadow: 0 0 0 2px var(--line); }
+    .beat-meter i:first-child.on { background: var(--gold); }
+    .beat-float { position: absolute; z-index: 31; pointer-events: none; white-space: nowrap; font-weight: 700; line-height: 1; font-size: var(--fs-1); text-shadow: var(--o1); animation: scoreFloatUp 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards; }
+    .beat-float.perfect { color: #ff5d8f; font-size: var(--fs-2); text-shadow: var(--o2); }
+    .beat-float.good { color: #80d8ff; }
+
+    /* 낮은 화면(폰 가로): 타이틀 카드가 화면을 넘지 않게 장식을 줄이고, 그래도 넘치면 스크롤 */
+    @media (max-height: 550px) {
+      .screen-overlay { justify-content: safe center; overflow-y: auto; }
+      #screen-title .pixel-apple-big, #screen-title .title-ribbon { display: none; }
+      #screen-title .title-card { padding-top: 8px; }
+      #screen-title .screen-ratio-wrapper { margin: 2px 0; }
+      #screen-title .btn-ratio-choice { min-height: 0; padding-top: 2px; padding-bottom: 2px; }
+      #screen-title .screen-ratio-wrapper > .ratio-label, #screen-title .mods-wrapper small { display: none; }
+      #screen-title .big-title { font-size: var(--fs-3); }
+    }
+
     /* ---------- AI 대결 ---------- */
     .versus-desc { margin: 4px 0 12px; line-height: 1.7; text-align: center; font-weight: 700; color: var(--text-soft); }
     .versus-levels { display: flex; flex-direction: column; gap: 6px; }
@@ -660,6 +711,8 @@
       body.ai-mode .ai-banner { display: none; }
       /* 판 위쪽 배너는 화면 밖으로 잘리므로 숨김 (이벤트·보스 이름은 스테이지 배지에 나옴) */
       .event-banner.show, body.versus-mode .ai-banner { display: none; }
+      .mods-desc { display: none; }
+      .mods-wrapper { margin-top: 4px; gap: 2px; }
       /* 콤보 간판은 판 오른쪽 밖에 작게 (판 안 위쪽에 두면 점수·메뉴 버튼을 가림) */
       .combo-widget { top: 2px; right: -96px; width: 84px; padding: 2px; }
       .combo-title { letter-spacing: 0; }
@@ -907,6 +960,16 @@
         </div>
       </div>
 
+      <div class="mods-wrapper">
+        <span class="ratio-label"><i class="ico ico-scroll"></i>변형 규칙 <small>(여러 개 켤 수 있어요)</small></span>
+        <div class="mods-group">
+          <button class="btn-mod" id="btn-mod-gravity" type="button" onclick="ui.toggleMod('gravity')"><i class="ico ico-2 ico-leaf"></i>중력</button>
+          <button class="btn-mod" id="btn-mod-merge" type="button" onclick="ui.toggleMod('merge')"><i class="ico ico-2 ico-sparkle"></i>합체</button>
+          <button class="btn-mod" id="btn-mod-rhythm" type="button" onclick="ui.toggleMod('rhythm')"><i class="ico ico-2 ico-speaker"></i>리듬</button>
+        </div>
+        <div class="mods-desc" id="mods-desc"></div>
+      </div>
+
       <div class="btn-group">
         <button class="btn-action shine" type="button" onclick="game.start(true, true)">게임 시작</button>
         <div class="btn-row">
@@ -966,6 +1029,7 @@
 
       <div class="hud-mid">
         <span class="stage-badge" id="stage-badge">STAGE 1</span>
+        <span class="beat-meter" id="beat-meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         <span class="hud-score"><span class="hud-label">점수</span><span id="score-text">0</span></span>
       </div>
 
@@ -1019,7 +1083,8 @@
       dark: window.matchMedia('(prefers-color-scheme: dark)').matches,
       sound: true,
       fx: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'low' : 'high',
-      aiSpeed: 1
+      aiSpeed: 1,
+      mods: { gravity: false, merge: false, rhythm: false } // 변형 규칙 (메인 화면에서 켜고 끔)
     };
     try { Object.assign(settings, JSON.parse(localStorage.getItem('apple-game-settings') || '{}')); } catch (e) {}
     function saveSettings() {
@@ -2596,6 +2661,22 @@
         this.modal('modal-guide', 0);
         game.runCountdownAndPlay();
       },
+      toggleMod(name) {
+        settings.mods = { ...settings.mods, [name]: !settings.mods?.[name] };
+        saveSettings();
+        this.refreshMods();
+        playTone(settings.mods[name] ? [[520, 0], [780, 0.06]] : [[520, 0], [390, 0.06]], 'triangle', 0.12, 0.14);
+      },
+      refreshMods() {
+        const DESC = {
+          gravity: '<b>중력</b> 벤 자리로 위 사과가 떨어지고 새 사과가 위에서 채워져요',
+          merge: '<b>합체</b> 이웃한 같은 숫자(1~4)를 끌면 두 배 숫자로 합쳐져요. 합친 사과는 점수도 여러 개로!',
+          rhythm: '<b>리듬</b> 박자에 맞춰 손을 떼면 PERFECT ×1.5 / GOOD ×1.2'
+        };
+        const on = Object.keys(DESC).filter(k => settings.mods?.[k]);
+        Object.keys(DESC).forEach(k => $(`btn-mod-${k}`).classList.toggle('active', !!settings.mods?.[k]));
+        $('mods-desc').innerHTML = on.length ? on.map(k => DESC[k]).join('<br>') : '끄면 원래 규칙 · AI 대결에는 적용되지 않아요';
+      },
       showBossAlert() {
         const b = game.getBossInfo();
         const T = BOSS_TYPES[b.kind];
@@ -2872,6 +2953,7 @@
           steps.push({ text: 'START!', color: '#4caf50', sound: [[587, 0], [880, 0.08]], dur: 850 });
           this.runTransitionSequence(steps);
         }
+        if (this.mod('rhythm')) rhythm.start();
       },
 
       runCountdownAndPlay() {
@@ -2893,6 +2975,10 @@
         clearInterval(this.hpTimer);
         clearInterval(this.bombTickTimer);
         clearTimeout(this.hintTimer);
+        clearTimeout(this.gravityTimer);
+        this.gravityTimer = null;
+        this.gravityPending = false;
+        rhythm.stop();
         this.resetCombo();
         this.clearEffects();
         document.body.classList.remove('low-hp');
@@ -3154,7 +3240,7 @@
 
         if (type === 'bomb') el.appendChild(createBombTag());
 
-        return { val, el, cleared: false, r, c, type, bombTime: 8.0, isGiant: false };
+        return { val, el, cleared: false, r, c, type, bombTime: 8.0, isGiant: false, weight: 1 };
       },
 
       renderBoard() {
@@ -3439,6 +3525,7 @@
       },
 
       scheduleAppleRespawn(cell, delay = 3000) {
+        if (this.mod('gravity')) { cell.respawnAt = 0; return this.queueGravity(); }
         cell.respawnAt = performance.now() + delay;
         setTimeout(() => {
           if (!this.active || !cell.cleared || cell.isGiant) return;
@@ -3447,6 +3534,8 @@
           cell.type = newCell.type;
           cell.bombTime = newCell.bombTime;
           cell.frozenLeft = 0;
+          cell.weight = 1;
+          delete cell.el.dataset.w;
           cell.cleared = false;
 
           cell.el.className = `apple ${cell.type === 'gold' ? 'gold-apple' : cell.type === 'bomb' ? 'bomb-apple' : ''} respawning`;
@@ -3682,6 +3771,109 @@
         cells.forEach(c => !c.cleared && c.el.classList.add('hint-target'));
       },
 
+      // 변형 규칙이 켜져 있는지 (AI 대결은 공정하게 원래 규칙)
+      mod(name) {
+        return !this.versus && !!settings.mods?.[name];
+      },
+
+      // 칸의 데이터(숫자·종류·폭탄·얼음·무게)대로 사과 모양을 다시 그림
+      paintCell(cell, extra = '') {
+        const el = cell.el;
+        el.className = `apple${cell.type === 'gold' ? ' gold-apple' : cell.type === 'bomb' ? ' bomb-apple' : ''}${cell.cleared ? ' cleared' : ''}${this.isFrozen(cell) ? ' frozen' : ''}${(cell.weight || 1) > 1 ? ' merged' : ''}${extra ? ' ' + extra : ''}`;
+        el.textContent = cell.val;
+        if ((cell.weight || 1) > 1) el.dataset.w = cell.weight; else delete el.dataset.w;
+        if (cell.type === 'bomb' && !cell.cleared) {
+          const tag = createBombTag();
+          tag.textContent = `${Math.ceil(Math.max(0, cell.bombTime))}s`;
+          el.appendChild(tag);
+        }
+      },
+
+      // ===== 중력: 베어진 칸으로 위 사과가 떨어지고, 빈 위쪽은 새 사과가 채움 (보스 칸은 벽) =====
+      queueGravity() {
+        if (this.gravityTimer) return;
+        this.gravityPending = true;
+        this.gravityTimer = setTimeout(() => this.applyGravity(), 260); // 베기 연출이 끝난 뒤
+      },
+      applyGravity() {
+        this.gravityTimer = null;
+        this.gravityPending = false;
+        if (!this.active) return;
+        const KEYS = ['val', 'type', 'bombTime', 'frozenLeft', 'weight'];
+        let fell = 0;
+        for (let c = 0; c < this.cols; c++) {
+          let r = this.rows - 1;
+          while (r >= 0) {
+            if (this.grid[r][c].isGiant) { r--; continue; }
+            const bottom = r;
+            while (r >= 0 && !this.grid[r][c].isGiant) r--;
+            const top = r + 1;
+            // 이 구간에 남은 사과를 아래부터 모음
+            const live = [];
+            for (let k = bottom; k >= top; k--) {
+              const x = this.grid[k][c];
+              if (!x.cleared) live.push({ from: k, data: Object.fromEntries(KEYS.map(key => [key, x[key]])) });
+            }
+            if (live.length === bottom - top + 1) continue; // 빈칸 없음
+            let k = bottom;
+            for (const a of live) {
+              const dest = this.grid[k][c];
+              if (a.from !== k) {
+                Object.assign(dest, a.data, { cleared: false });
+                this.dropCell(dest, k - a.from);
+              }
+              k--;
+            }
+            const empties = k - top + 1;
+            for (; k >= top; k--) {
+              const dest = this.grid[k][c];
+              const fresh = this.createAppleCell(k, c);
+              Object.assign(dest, { val: fresh.val, type: fresh.type, bombTime: fresh.bombTime, frozenLeft: 0, weight: 1, cleared: false, respawnAt: 0 });
+              this.dropCell(dest, empties);
+              fell++;
+            }
+          }
+        }
+        if (fell) {
+          playTone([[520, 0], [390, 0.05]], 'triangle', 0.1, 0.05);
+          fx.wake();
+        }
+        this.resetHint();
+      },
+      dropCell(cell, rows) {
+        this.paintCell(cell);
+        cell.el.style.setProperty('--fall', rows);
+        void cell.el.offsetWidth;
+        cell.el.classList.add('dropping');
+        clearTimeout(cell.dropTimer);
+        cell.dropTimer = setTimeout(() => cell.el.classList.remove('dropping'), 200 + rows * 50);
+      },
+
+      // ===== 합체: 이웃한 같은 숫자(1~4) 두 개를 끌면 끝칸에서 두 배 숫자 + 무게(점수 배수)가 됨 =====
+      mergeApples(a, b) {
+        b.val += a.val;
+        b.weight = (a.weight || 1) + (b.weight || 1);
+        a.cleared = true;
+        a.weight = 1;
+        const ra = a.el.getBoundingClientRect(), rb = b.el.getBoundingClientRect();
+        a.el.style.setProperty('--mx', `${rb.left - ra.left}px`);
+        a.el.style.setProperty('--my', `${rb.top - ra.top}px`);
+        a.el.classList.add('merging');
+        playTone([[392, 0], [523, 0.06], [784, 0.12]], 'triangle', 0.22, 0.12);
+        setTimeout(() => {
+          a.el.classList.remove('merging');
+          if (a.cleared) a.el.classList.add('cleared');
+          this.paintCell(b, 'merge-pop');
+          setTimeout(() => b.el.classList.remove('merge-pop'), 380);
+          const { x, y } = fx.center(b.el);
+          fx.sparkle(x, y, '#b388ff', 14, 1.2);
+          const bRect = $('board-wrapper').getBoundingClientRect();
+          showCallout({ left: rb.left - bRect.left, top: rb.top - bRect.top, width: rb.width, height: rb.height }, `합체 ×${b.weight}`, 't-great');
+        }, 160);
+        this.scheduleAppleRespawn(a, 3000);
+        this.resetHint();
+      },
+
       // 이번 스테이지의 보스 (없으면 null)
       getBossInfo(stage = this.stage) {
         if (this.versus || stage % 5 !== 0) return null;
@@ -3747,6 +3939,12 @@
         if (res.valid && res.selectedCells.some(c => this.isFrozen(c))) {
           res.valid = false;
           res.frozen = true;
+        }
+        // 합 10이 아니어도 이웃한 같은 숫자 두 개(1~4)면 합체
+        if (!res.valid && !res.frozen && dist === 1 && targetCells.length === 2 && this.mod('merge')) {
+          const a = this.grid[r1][c1], b = this.grid[r2][c2];
+          const ok = x => live(x) && x.type === 'normal' && !this.isFrozen(x);
+          if (ok(a) && ok(b) && a.val === b.val && a.val <= 4) res.merge = { from: a, to: b };
         }
         return res;
       },
@@ -3878,8 +4076,8 @@
           await this.press(document.querySelector('#modal-boss-alert .boss-start'), run);
           return run === this.runId && this.schedule(run, 300);
         }
-        if (!game.active || game.isPaused() || game.isTransitioning || (this.versus && !versus.running)) return this.schedule(run, 150);
-        const move = this.bestMove();
+        if (!game.active || game.isPaused() || game.isTransitioning || game.gravityPending || (this.versus && !versus.running)) return this.schedule(run, 150);
+        const move = this.bestMove() || (game.mod('merge') && this.findMerge());
         if (!move) return this.schedule(run, 200); // 벨 곳이 없으면 사과가 다시 열릴 때까지 대기
         await this.drag(move, run);
         if (run === this.runId) this.schedule(run, this.sp.pause);
@@ -3900,7 +4098,7 @@
         const soon = x => x.cleared && !x.isGiant && x.respawnAt > 0 && x.respawnAt - now < horizon;
         const bombWeight = x => x.type === 'bomb' ? (x.bombTime <= 3 ? 3 : 1) : 0;
         const mk = () => Array.from({ length: R + 1 }, () => new Float64Array(C + 1));
-        const SV = mk(), SN = mk(), SG = mk(), SB = mk(), SS = mk(), SF = mk();
+        const SV = mk(), SN = mk(), SG = mk(), SB = mk(), SS = mk(), SF = mk(), SW = mk();
         for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
           const x = G[r][c], on = live(x);
           const add = (S, v) => { S[r + 1][c + 1] = v + S[r][c + 1] + S[r + 1][c] - S[r][c]; };
@@ -3910,6 +4108,7 @@
           add(SB, on ? bombWeight(x) : 0);
           add(SS, soon(x) ? 1 : 0);
           add(SF, on && game.isFrozen(x) ? 1 : 0);
+          add(SW, on ? (x.weight || 1) : 0);
         }
         const box = (S, t, l, b, r) => S[b + 1][r + 1] - S[t][r + 1] - S[b + 1][l] + S[t][l];
 
@@ -3952,13 +4151,14 @@
           if (!rn) return;
           const rv = box(SV, t, l, b, r), rg = box(SG, t, l, b, r), rb = box(SB, t, l, b, r);
           const span = b - t, diag = span === r - l && span > 0;
-          let tn = rn, tg = rg, tb = rb, tv = rv, ts = 0, tf = box(SF, t, l, b, r);
+          const rw = box(SW, t, l, b, r);
+          let tn = rn, tg = rg, tb = rb, tv = rv, ts = 0, tf = box(SF, t, l, b, r), tw = rw;
           if (diag) {
-            tn = tv = tg = tb = tf = 0;
+            tn = tv = tg = tb = tf = tw = 0;
             const sr = Math.sign(r2 - r1), sc = Math.sign(c2 - c1);
             for (let i = 0; i <= span; i++) {
               const x = G[r1 + i * sr][c1 + i * sc];
-              if (live(x)) { tn++; tv += x.val; tg += x.type === 'gold' ? 1 : 0; tb += bombWeight(x); tf += game.isFrozen(x) ? 1 : 0; }
+              if (live(x)) { tn++; tw += x.weight || 1; tv += x.val; tg += x.type === 'gold' ? 1 : 0; tb += bombWeight(x); tf += game.isFrozen(x) ? 1 : 0; }
               else if (soon(x)) ts++;
             }
           }
@@ -3967,9 +4167,9 @@
           // (언 사과가 끼면 무효라 버림)
           const goldOk = tg && Math.max(span, r - l) <= 2 && tn;
           const rectOk = !goldOk && game.isTargetSum(rv);
-          if (goldOk) { if (!tf) pick(tn, tg, tb, r1, c1, r2, c2, false); }
-          else if (rectOk) { if (!box(SS, t, l, b, r) && !box(SF, t, l, b, r)) pick(rn, rg, rb, r1, c1, r2, c2, !diag); }
-          else if (diag && tn && game.isTargetSum(tv) && !ts && !tf) pick(tn, tg, tb, r1, c1, r2, c2, false);
+          if (goldOk) { if (!tf) pick(tw, tg, tb, r1, c1, r2, c2, false); }
+          else if (rectOk) { if (!box(SS, t, l, b, r) && !box(SF, t, l, b, r)) pick(rw, rg, rb, r1, c1, r2, c2, !diag); }
+          else if (diag && tn && game.isTargetSum(tv) && !ts && !tf) pick(tw, tg, tb, r1, c1, r2, c2, false);
         };
         if (from) {
           for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) evalDrag(from.r, from.c, r, c);
@@ -3978,6 +4178,17 @@
             for (let r2 = r1; r2 < R; r2++) for (let c2 = r2 === r1 ? c1 : 0; c2 < C; c2++) evalDrag(r1, c1, r2, c2);
         }
         return best;
+      },
+
+      // 벨 곳이 없을 때: 이웃한 같은 숫자 둘을 합체 (무게가 큰 사과를 만들어 둠)
+      findMerge() {
+        const R = game.rows, C = game.cols, out = [];
+        for (let r = 0; r < R; r++) for (let c = 0; c < C; c++)
+          for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
+            const r2 = r + dr, c2 = c + dc;
+            if (r2 < R && c2 >= 0 && c2 < C && game.evaluateSelection(r, c, r2, c2).merge) out.push({ r1: r, c1: c, r2, c2, merge: true });
+          }
+        return out.length ? out[Math.floor(Math.random() * out.length)] : null;
       },
 
       cellPoint(r, c) {
@@ -4022,7 +4233,8 @@
         let b = this.cellPoint(m.r2, m.c2);
         let ok = await this.glide(b.x, b.y, this.sp.drag, run, true);
         // 끄는 사이 폭발·리스폰으로 합이 틀어졌으면 같은 시작칸에서 다른 끝칸을 찾아 고쳐 잡음
-        if (ok && game.drag && !game.isFever && !game.currentSelection?.valid) {
+        const usable = () => game.currentSelection?.valid || game.currentSelection?.merge;
+        if (ok && game.drag && !game.isFever && !usable()) {
           const alt = this.bestMove(game.dragStart);
           if (alt) {
             b = this.cellPoint(alt.r2, alt.c2);
@@ -4031,7 +4243,12 @@
         }
         this.cursorEl.classList.remove('press');
         if (!ok) return;
-        if (game.drag && !game.isFever && !game.currentSelection?.valid) {
+        // 리듬: 다음 박자까지 잠깐 쥐고 있다가 박자에 손을 뗌
+        if (game.mod('rhythm') && rhythm.on && game.drag && rhythm.offset() > rhythm.PERFECT_MS / 2) {
+          if (!await this.wait(rhythm.msToNextBeat(), run)) return;
+          this.fire('pointermove', b.x, b.y); // 기다리는 사이 바뀐 판으로 다시 판정
+        }
+        if (game.drag && !game.isFever && !usable()) {
           this.fire('pointercancel', b.x, b.y);
           this.cancels = (this.cancels || 0) + 1;
           return;
@@ -4107,6 +4324,61 @@
         this.cursorEl.classList.remove('press');
         if (ok) el.click();
         return ok;
+      }
+    };
+
+    // ===== 리듬: 100BPM 박자에 맞춰 손을 떼면 보너스 =====
+    const rhythm = {
+      BPM: 100, PERFECT_MS: 60, GOOD_MS: 120,
+      on: false, t0: 0, timer: null,
+      get interval() { return 60000 / this.BPM; },
+      start() {
+        this.stop();
+        this.on = true;
+        this.t0 = performance.now();
+        document.body.classList.add('rhythm-on');
+        this.loop();
+      },
+      stop() {
+        this.on = false;
+        clearTimeout(this.timer);
+        document.body.classList.remove('rhythm-on');
+        document.querySelectorAll('#beat-meter i').forEach(i => i.classList.remove('on'));
+      },
+      // 박자 시각에 맞춰 스스로 다시 예약 (밀림이 쌓이지 않게 t0 기준)
+      loop() {
+        if (!this.on) return;
+        const k = Math.round((performance.now() - this.t0) / this.interval);
+        if (game.active && !game.isPaused()) this.tick(k);
+        this.timer = setTimeout(() => this.loop(), Math.max(5, this.t0 + (k + 1) * this.interval - performance.now()));
+      },
+      tick(k) {
+        const accent = k % 4 === 0;
+        if (accent) playTone([[150, 0], [55, 0.09]], 'sine', 0.2, 0.3);
+        else playNoise({ dur: 0.04, vol: 0.07, type: 'highpass', from: 7000, to: 6000 });
+        document.querySelectorAll('#beat-meter i').forEach((i, n) => i.classList.toggle('on', n === k % 4));
+      },
+      offset() {
+        const d = (performance.now() - this.t0) % this.interval;
+        return Math.min(d, this.interval - d);
+      },
+      msToNextBeat() {
+        return this.interval - (performance.now() - this.t0) % this.interval;
+      },
+      judge() {
+        if (!this.on) return null;
+        const off = this.offset();
+        return off <= this.PERFECT_MS ? 'perfect' : off <= this.GOOD_MS ? 'good' : null;
+      },
+      showJudge(rect, beat) {
+        const el = document.createElement('div');
+        el.className = `beat-float ${beat}`;
+        el.textContent = beat === 'perfect' ? '♪ PERFECT ×1.5' : '♪ GOOD ×1.2';
+        el.style.left = `${rect.left + rect.width / 2}px`;
+        el.style.top = `${rect.top + rect.height}px`;
+        $('board-wrapper').appendChild(el);
+        setTimeout(() => el.remove(), 750);
+        if (beat === 'perfect') playTone([[1046, 0], [1568, 0.05]], 'triangle', 0.15, 0.1);
       }
     };
 
@@ -4311,22 +4583,28 @@
         const isGoldIncluded = sel.cells.some(c => c.type === 'gold');
         slashCells(sel, curBoxRect, tier);
 
+        // 합체한 사과는 무게만큼 사과 여러 개로 침
+        const weight = sel.cells.reduce((s, c) => s + (c.weight || 1), 0);
         if (game.giantApple && game.giantApple.hp > 0) {
-          game.damageGiantApple(Math.min(BOSS_HIT_CAP, sel.cells.length * 5));
+          game.damageGiantApple(Math.min(BOSS_HIT_CAP, weight * 5));
         }
 
         const comboBonus = game.combo * game.comboMultiplier;
-        const upgradeBonus = sel.cells.length * game.bonusScorePerApple;
-        const feverBonus = game.isFever ? (sel.cells.length * 2) : 0;
+        const upgradeBonus = weight * game.bonusScorePerApple;
+        const feverBonus = game.isFever ? (weight * 2) : 0;
         const goldBonus = isGoldIncluded ? 15 : 0;
 
         const eventMultiplier = (game.currentEvent && game.currentEvent.id === 'blitz_rush') ? 3 : 1;
-        const gainedScore = (sel.cells.length + comboBonus + upgradeBonus + feverBonus + goldBonus) * eventMultiplier;
-        
+        // 리듬: 박자에 맞춰 손을 떼면 PERFECT ×1.5(+콤보 1 더) / GOOD ×1.2
+        const beat = game.mod('rhythm') ? rhythm.judge() : null;
+        const beatMult = beat === 'perfect' ? 1.5 : beat === 'good' ? 1.2 : 1;
+        const gainedScore = Math.round((weight + comboBonus + upgradeBonus + feverBonus + goldBonus) * eventMultiplier * beatMult);
+
         game.score += gainedScore;
         game.updateHeaderUI();
 
         showFloatingScore(curBoxRect, gainedScore);
+        if (beat) rhythm.showJudge(curBoxRect, beat);
         fx.shake(Math.min(9, 1.5 + sel.cells.length * 0.7));
 
         const cleared = sel.cells.length, nextCombo = game.combo + 1;
@@ -4341,6 +4619,7 @@
 
         if (!game.isFever) {
           game.addCombo();
+          if (beat === 'perfect' && !game.isFever) game.addCombo();
         } else {
           game.combo += 1;
           $('combo-count').textContent = game.combo;
@@ -4348,6 +4627,8 @@
 
         sfx.clear(game.combo);
         game.checkStageProgress();
+      } else if (sel && sel.merge) {
+        game.mergeApples(sel.merge.from, sel.merge.to);
       } else if (sel && sel.count > 0 && !game.isFever) {
         game.resetCombo();
         fx.shake(6);
@@ -4403,7 +4684,7 @@
       if (!el) return;
       const [r1, c1, r2, c2] = [game.dragStart.r, game.dragStart.c, +el.dataset.r, +el.dataset.c];
 
-      const { valid, isDiagMatch, selectedCells, isGoldMatch, rectSum, diagSum, isPureDiag, frozen } = game.evaluateSelection(r1, c1, r2, c2);
+      const { valid, isDiagMatch, selectedCells, isGoldMatch, rectSum, diagSum, isPureDiag, frozen, merge } = game.evaluateSelection(r1, c1, r2, c2);
 
       const currentEls = selectedCells.map(c => c.el);
       if (valid) {
@@ -4433,7 +4714,7 @@
       if (game.isFever) {
         box.className = `selection-box fever-drag ${isDiagMatch ? 'diag-matched' : ''}`;
       } else {
-        box.className = `selection-box ${valid ? (isDiagMatch ? 'diag-matched' : 'valid') : ''}`;
+        box.className = `selection-box ${valid ? (isDiagMatch ? 'diag-matched' : 'valid') : merge ? 'merge-ready' : ''}`;
       }
 
       const indicator = $('sum-indicator');
@@ -4466,6 +4747,8 @@
         indicator.textContent = `황금 참격!`;
       } else if (valid) {
         indicator.textContent = isDiagMatch ? `대각 합: ${diagSum}` : `합: ${rectSum}`;
+      } else if (merge) {
+        indicator.textContent = `합체! ${merge.from.val}+${merge.to.val}=${merge.from.val + merge.to.val}`;
       } else if (frozen) {
         indicator.textContent = '얼어 있어서 못 벱니다!';
       } else {
@@ -4478,6 +4761,7 @@
         valid,
         count: selectedCells.length,
         isDiag: isDiagMatch,
+        merge,
         sRect,
         eRect,
         r1, c1, r2, c2
@@ -4513,6 +4797,7 @@
     ui.setSound(settings.sound, true);
     ui.setFx(settings.fx, true);
     ui.refreshBest();
+    ui.refreshMods();
     game.applySizing();
     game.renderBoard();
     document.fonts.ready.then(() => game.applySizing()); // 폰트가 적용된 뒤 점수판 높이로 다시 계산
